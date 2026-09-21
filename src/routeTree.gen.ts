@@ -10,33 +10,115 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as GalleryRouteImport } from './routes/gallery'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as ClientSlugRouteImport } from './routes/client.$slug'
+import { Route as ContractSlugRouteImport } from './routes/contract.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GalleryRoute = GalleryRouteImport.update({
+  id: '/gallery',
+  path: '/gallery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClientSlugRoute = ClientSlugRouteImport.update({
+  id: '/client/$slug',
+  path: '/client/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContractSlugRoute = ContractSlugRouteImport.update({
+  id: '/contract/$slug',
+  path: '/contract/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
+  '/faq': typeof FaqRoute
+  '/gallery': typeof GalleryRoute
+  '/pricing': typeof PricingRoute
+  '/client/$slug': typeof ClientSlugRoute
+  '/contract/$slug': typeof ContractSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
+  '/faq': typeof FaqRoute
+  '/gallery': typeof GalleryRoute
+  '/pricing': typeof PricingRoute
+  '/client/$slug': typeof ClientSlugRoute
+  '/contract/$slug': typeof ContractSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
+  '/faq': typeof FaqRoute
+  '/gallery': typeof GalleryRoute
+  '/pricing': typeof PricingRoute
+  '/client/$slug': typeof ClientSlugRoute
+  '/contract/$slug': typeof ContractSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/contact'
+    | '/faq'
+    | '/gallery'
+    | '/pricing'
+    | '/client/$slug'
+    | '/contract/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/contact'
+    | '/faq'
+    | '/gallery'
+    | '/pricing'
+    | '/client/$slug'
+    | '/contract/$slug'
+  id:
+    | '__root__'
+    | '/'
+    | '/contact'
+    | '/faq'
+    | '/gallery'
+    | '/pricing'
+    | '/client/$slug'
+    | '/contract/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ContactRoute: typeof ContactRoute
+  FaqRoute: typeof FaqRoute
+  GalleryRoute: typeof GalleryRoute
+  PricingRoute: typeof PricingRoute
+  ClientSlugRoute: typeof ClientSlugRoute
+  ContractSlugRoute: typeof ContractSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +130,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gallery': {
+      id: '/gallery'
+      path: '/gallery'
+      fullPath: '/gallery'
+      preLoaderRoute: typeof GalleryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/client/$slug': {
+      id: '/client/$slug'
+      path: '/client/$slug'
+      fullPath: '/client/$slug'
+      preLoaderRoute: typeof ClientSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contract/$slug': {
+      id: '/contract/$slug'
+      path: '/contract/$slug'
+      fullPath: '/contract/$slug'
+      preLoaderRoute: typeof ContractSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ContactRoute: ContactRoute,
+  FaqRoute: FaqRoute,
+  GalleryRoute: GalleryRoute,
+  PricingRoute: PricingRoute,
+  ClientSlugRoute: ClientSlugRoute,
+  ContractSlugRoute: ContractSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -9,9 +9,10 @@ import { submitContact, type ContactInput } from "@/lib/booking.functions";
 import { CONTACT_METHODS, HEARD_ABOUT, INTEREST_LEVELS, SHOOT_TYPES, upcomingMonths } from "@/lib/site";
 
 export const Route = createFileRoute("/contact")({
-  validateSearch: (s: Record<string, unknown>) => ({
-    type: typeof s.type === "string" ? s.type : undefined,
-  }),
+  validateSearch: (s: Record<string, unknown>): { type?: string } => {
+    const t = s["type"];
+    return typeof t === "string" ? { type: t } : {};
+  },
   head: () => ({
     meta: [
       { title: "Contact & Booking — Kylie Photography" },
