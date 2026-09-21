@@ -14,7 +14,117 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      client_galleries: {
+        Row: {
+          client_name: string
+          created_at: string
+          id: string
+          message: string | null
+          photos: Json
+          slug: string
+          title: string
+        }
+        Insert: {
+          client_name: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          photos?: Json
+          slug: string
+          title: string
+        }
+        Update: {
+          client_name?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          photos?: Json
+          slug?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      contact_submissions: {
+        Row: {
+          created_at: string
+          desired_month: string | null
+          email: string
+          heard_about: string | null
+          id: string
+          interest_level: string
+          name: string
+          phone: string
+          preferred_contact: string
+          shoot_type: string
+          socials: string | null
+          vision: string | null
+        }
+        Insert: {
+          created_at?: string
+          desired_month?: string | null
+          email: string
+          heard_about?: string | null
+          id?: string
+          interest_level: string
+          name: string
+          phone: string
+          preferred_contact: string
+          shoot_type: string
+          socials?: string | null
+          vision?: string | null
+        }
+        Update: {
+          created_at?: string
+          desired_month?: string | null
+          email?: string
+          heard_about?: string | null
+          id?: string
+          interest_level?: string
+          name?: string
+          phone?: string
+          preferred_contact?: string
+          shoot_type?: string
+          socials?: string | null
+          vision?: string | null
+        }
+        Relationships: []
+      }
+      contracts: {
+        Row: {
+          agreed: boolean
+          body: string
+          client_name: string
+          created_at: string
+          id: string
+          signed_at: string | null
+          signed_name: string | null
+          slug: string
+          title: string
+        }
+        Insert: {
+          agreed?: boolean
+          body: string
+          client_name: string
+          created_at?: string
+          id?: string
+          signed_at?: string | null
+          signed_name?: string | null
+          slug: string
+          title: string
+        }
+        Update: {
+          agreed?: boolean
+          body?: string
+          client_name?: string
+          created_at?: string
+          id?: string
+          signed_at?: string | null
+          signed_name?: string | null
+          slug?: string
+          title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
