@@ -7,10 +7,10 @@ import { FAQS } from "@/lib/site";
 export const Route = createFileRoute("/faq")({
   head: () => ({
     meta: [
-      { title: "FAQ — Kylie Photography" },
-      { name: "description", content: "Answers about turnaround time, deposits, what to wear, and travel fees for sessions with Kylie Photography." },
-      { property: "og:title", content: "FAQ — Kylie Photography" },
-      { property: "og:description", content: "Turnaround time, deposits, what to wear, and travel." },
+      { title: "FAQ — Kylie's Camera" },
+      { name: "description", content: "Answers about travel fees and posing help for sessions with Kylie's Camera." },
+      { property: "og:title", content: "FAQ — Kylie's Camera" },
+      { property: "og:description", content: "Travel fees and posing help." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

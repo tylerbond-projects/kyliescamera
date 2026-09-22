@@ -7,9 +7,9 @@ import { CATEGORY_IMAGES } from "@/lib/images";
 export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
-      { title: "Info & Pricing — Kylie Photography" },
+      { title: "Info & Pricing — Kylie's Camera" },
       { name: "description", content: "Session details and pricing for portrait, couple, family, wedding, dance, sports, and missionary homecoming photography in Utah County." },
-      { property: "og:title", content: "Info & Pricing — Kylie Photography" },
+      { property: "og:title", content: "Info & Pricing — Kylie's Camera" },
       { property: "og:description", content: "Session details and pricing for every shoot type." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

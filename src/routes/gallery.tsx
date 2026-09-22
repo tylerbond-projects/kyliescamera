@@ -7,9 +7,9 @@ import { CATEGORY_IMAGES } from "@/lib/images";
 export const Route = createFileRoute("/gallery")({
   head: () => ({
     meta: [
-      { title: "Gallery — Kylie Photography" },
+      { title: "Gallery — Kylie's Camera" },
       { name: "description", content: "A look at recent portrait, couple, family, wedding, dance, sports, and homecoming sessions around Utah County." },
-      { property: "og:title", content: "Gallery — Kylie Photography" },
+      { property: "og:title", content: "Gallery — Kylie's Camera" },
       { property: "og:description", content: "Recent sessions around Utah County." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

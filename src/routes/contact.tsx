@@ -11,9 +11,9 @@ export const Route = createFileRoute("/contact")({
   },
   head: () => ({
     meta: [
-      { title: "Contact & Booking — Kylie Photography" },
-      { name: "description", content: "Book a portrait, couple, family, wedding, dance, sports, or homecoming session with Kylie Photography in Utah County." },
-      { property: "og:title", content: "Contact & Booking — Kylie Photography" },
+      { title: "Contact & Booking — Kylie's Camera" },
+      { name: "description", content: "Book a portrait, couple, family, wedding, dance, sports, or homecoming session with Kylie's Camera in Utah County." },
+      { property: "og:title", content: "Contact & Booking — Kylie's Camera" },
       { property: "og:description", content: "Tell me your vision and let's plan your session." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -3,19 +3,23 @@ import { ArrowRight, Quote } from "lucide-react";
 import { SITE, FUN_FACTS, TESTIMONIALS, SHOOT_TYPES } from "@/lib/site";
 import { SocialLinks } from "@/components/site/SocialLinks";
 import { CATEGORY_IMAGES } from "@/lib/images";
+import { cn } from "@/lib/utils";
 import heroImg from "@/assets/hero.jpg";
 import portraitImg from "@/assets/portrait.jpg";
+
+// Placeholder — swap for a real photo of Kylie whenever it's ready.
+const funFactsImg = portraitImg;
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Kylie Photography — Authentic, Heartfelt Photography in Utah County" },
+      { title: "Kylie's Camera — Authentic, Heartfelt Photography in Utah County" },
       {
         name: "description",
         content:
           "Warm, candid portrait, couple, family, wedding, dance, and sports photography in Utah County, UT. Capturing moments since 2024.",
       },
-      { property: "og:title", content: "Kylie Photography — Authentic, Heartfelt Photography" },
+      { property: "og:title", content: "Kylie's Camera — Authentic, Heartfelt Photography" },
       { property: "og:description", content: "Warm, candid photography in Utah County, UT. Capturing moments since 2024." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -68,16 +72,15 @@ function HomePage() {
           />
         </div>
         <div>
-          <p className="eyebrow">Hi, I'm Kylie</p>
-          <h2 className="mt-4 text-4xl md:text-5xl">
-            I photograph the in-between moments — the ones you'll want to remember forever.
-          </h2>
+          <p className="eyebrow">Meet the Photographer</p>
+          <h2 className="mt-4 text-4xl md:text-5xl">Hi! I'm Kylie Bond!</h2>
           <p className="mt-6 leading-relaxed text-muted-foreground">
-            I'm a Utah County photographer who believes the best photos happen when you forget the
-            camera is there. My sessions are relaxed, a little playful, and full of golden light.
-            Whether it's your family, your love story, or a homecoming years in the making, I'd be
-            honored to capture it.
+            A Portrait & Couples Photographer capturing fun, natural moments. I love taking photos of
+            seniors, couples, weddings, etc. I love anything to do with photography and have been
+            doing photography since my sophomore year of high school. It's been such an incredible
+            journey. I love being able to capture life's little moments.
           </p>
+          <p className="mt-4 leading-relaxed text-muted-foreground">I can't wait to work with you!</p>
           <Link to="/contact" className="btn-primary mt-8">
             Contact me
           </Link>
@@ -121,15 +124,29 @@ function HomePage() {
           <p className="eyebrow">Get to know me</p>
           <h2 className="mt-3 text-4xl md:text-5xl">Fun facts about me</h2>
         </div>
-        <ol className="mx-auto mt-14 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-5">
-          {FUN_FACTS.map((f, i) => (
-            <li key={f.title} className="text-center">
-              <span className="font-script text-5xl text-primary">{String(i + 1).padStart(2, "0")}</span>
-              <h3 className="mt-2 text-xl">{f.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.text}</p>
-            </li>
-          ))}
-        </ol>
+        <div className="mx-auto mt-14 grid max-w-4xl items-center gap-10 md:grid-cols-[1fr_auto_1fr] md:gap-6">
+          <ol className="grid gap-8 text-center sm:grid-cols-2 md:grid-cols-1 md:text-right">
+            {FUN_FACTS.slice(0, 3).map((f, i) => (
+              <FunFact key={f.title} index={i} fact={f} />
+            ))}
+          </ol>
+          <div className="relative order-first mx-auto w-48 shrink-0 md:order-none md:w-56">
+            <div className="absolute -inset-3 rotate-2 rounded-full bg-blush" />
+            <img
+              src={funFactsImg}
+              alt="Kylie"
+              width={512}
+              height={512}
+              loading="lazy"
+              className="relative aspect-square w-full rounded-full object-cover shadow-soft"
+            />
+          </div>
+          <ol className="grid gap-8 text-center sm:grid-cols-2 md:grid-cols-1 md:text-left">
+            {FUN_FACTS.slice(3).map((f, i) => (
+              <FunFact key={f.title} index={i + 3} fact={f} />
+            ))}
+          </ol>
+        </div>
       </section>
 
       {/* Testimonials */}
@@ -143,14 +160,35 @@ function HomePage() {
             {TESTIMONIALS.map((t) => (
               <figure
                 key={t.name}
-                className="min-w-[85%] snap-center rounded-lg bg-card p-8 shadow-card sm:min-w-[60%] lg:min-w-[calc(33.333%-1rem)]"
+                className={cn(
+                  "relative min-w-[85%] snap-center overflow-hidden rounded-lg p-8 shadow-card sm:min-w-[60%] lg:min-w-[calc(33.333%-1rem)]",
+                  !t.photo && "bg-card",
+                )}
               >
-                <Quote className="size-6 text-primary" />
-                <blockquote className="mt-4 font-serif text-xl leading-relaxed italic">"{t.quote}"</blockquote>
-                <figcaption className="mt-6 text-sm">
-                  <span className="font-medium">{t.name}</span>
-                  <span className="text-muted-foreground"> · {t.session}</span>
-                </figcaption>
+                {t.photo && (
+                  <>
+                    <img src={t.photo.src} alt={t.photo.alt} className="absolute inset-0 size-full object-cover" />
+                    <div className="absolute inset-0 bg-ink/65" />
+                  </>
+                )}
+                <div className="relative">
+                  <Quote className={cn("size-6", t.photo ? "text-primary-foreground" : "text-primary")} />
+                  <blockquote
+                    className={cn(
+                      "mt-4 font-serif text-xl leading-relaxed italic",
+                      t.photo && "text-primary-foreground",
+                    )}
+                  >
+                    "{t.quote}"
+                  </blockquote>
+                  <figcaption className="mt-6 text-sm">
+                    <span className={cn("font-medium", t.photo && "text-primary-foreground")}>{t.name}</span>
+                    <span className={t.photo ? "text-primary-foreground/75" : "text-muted-foreground"}>
+                      {" "}
+                      · {t.session}
+                    </span>
+                  </figcaption>
+                </div>
               </figure>
             ))}
           </div>
@@ -169,5 +207,15 @@ function HomePage() {
         </div>
       </section>
     </>
+  );
+}
+
+function FunFact({ index, fact }: { index: number; fact: { title: string; text: string } }) {
+  return (
+    <li>
+      <span className="font-script text-4xl text-primary">{String(index + 1).padStart(2, "0")}</span>
+      <h3 className="mt-1 text-xl">{fact.title}</h3>
+      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{fact.text}</p>
+    </li>
   );
 }

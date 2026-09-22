@@ -31,7 +31,7 @@ export function SocialLinks({ size = "sm" }: { size?: "sm" | "lg" }) {
               className={
                 large
                   ? "flex flex-col items-center gap-3 rounded-2xl border border-border bg-card px-8 py-6 text-center shadow-card transition-transform hover:-translate-y-1"
-                  : "flex size-10 items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+                  : "flex size-7 items-center justify-center text-muted-foreground transition-colors hover:text-primary"
               }
             >
               <Icon className={large ? "size-7 text-primary" : "size-4"} />

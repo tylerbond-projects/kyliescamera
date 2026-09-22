@@ -1,12 +1,12 @@
 export const SITE = {
-  name: "Kylie Photography",
+  name: "Kylie's Camera",
   motto: "Authentic, Heartfelt Photography.",
   tagline: "Capturing moments since 2024.",
   location: "Utah County, UT",
   email: "hello@kyliephotography.com",
   socials: [
     { label: "Instagram", handle: "@kylie.photography", href: "https://instagram.com/kylie.photography" },
-    { label: "Facebook", handle: "Kylie Photography", href: "https://facebook.com/kyliephotography" },
+    { label: "Facebook", handle: "Kylie's Camera", href: "https://facebook.com/kyliephotography" },
     { label: "TikTok", handle: "@kylie.photography", href: "https://tiktok.com/@kylie.photography" },
   ],
 };
@@ -96,7 +96,16 @@ export function upcomingMonths(count = 14): string[] {
   return out;
 }
 
-export const TESTIMONIALS = [
+// Add a `photo: { src: yourImport, alt: "..." }` to any testimonial below to use
+// that photo as the card's background instead of the plain card style.
+export type TestimonialPhoto = { src: string; alt: string };
+
+export const TESTIMONIALS: {
+  name: string;
+  session: string;
+  quote: string;
+  photo?: TestimonialPhoto;
+}[] = [
   {
     name: "Madison R.",
     session: "Family Session",
@@ -124,28 +133,21 @@ export const TESTIMONIALS = [
 ];
 
 export const FUN_FACTS = [
-  { title: "Golden hour devotee", text: "I plan my whole week around sunset times. Yes, really." },
-  { title: "Film at heart", text: "I shoot digital but edit everything to feel like a roll of Portra 400." },
-  { title: "Utah County local", text: "Born and raised. I know every hidden field and canyon pullout." },
-  { title: "Snack provider", text: "I always bring fruit snacks for the kids. And sometimes the parents." },
-  { title: "Dog person", text: "Bring your pup to the session. I will 100% take extra photos of them." },
+  { title: "Started my business", text: "April 2024" },
+  { title: "Favorite color", text: "Yellow" },
+  { title: "Go-to fast food", text: "Freddy's" },
+  { title: "Favorite food", text: "Steak or ribs" },
+  { title: "Favorite drink", text: "Dr. Pepper" },
+  { title: "Dream vacation", text: "Switzerland" },
 ];
 
 export const FAQS = [
   {
-    q: "How long until I get my photos?",
-    a: "Sneak peeks land in your inbox within 48 hours. Your full edited gallery is delivered in 2–3 weeks for sessions and 6–8 weeks for weddings.",
+    q: "Do you travel for photoshoots?",
+    a: "Yes I do! I am located in Utah county, and travel everywhere and anywhere beyond that with all travel/transportation fees covered. If it is 20 miles away from my residency a travel fee will be included :)",
   },
   {
-    q: "Do you require a deposit?",
-    a: "Yes. A non-refundable 25% retainer reserves your date, and the remaining balance is due the day of your session.",
-  },
-  {
-    q: "What should we wear?",
-    a: "Soft, neutral, and earthy tones photograph beautifully. Once you book, I'll send a full style guide with color palettes and outfit ideas.",
-  },
-  {
-    q: "Do you travel? Are there travel fees?",
-    a: "Anywhere in Utah County is included. Beyond that, a small travel fee of $0.65 per mile applies. Destination sessions and weddings are always welcome — just ask!",
+    q: "Do you help with posing?",
+    a: "Yes! I have so many poses and prompts that we will run through during your session! Feel free to bring any inspo, or photos you are wanting to recreate!",
   },
 ];
