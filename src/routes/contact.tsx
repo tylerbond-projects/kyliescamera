@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Heart } from "lucide-react";
+import { Heart, Mail } from "lucide-react";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { PageIntro } from "@/components/site/PageIntro";
+import { SocialLinks } from "@/components/site/SocialLinks";
 import { CONTACT_METHODS, HEARD_ABOUT, INTEREST_LEVELS, MISC_PRICING, SHOOT_TYPES, SITE, upcomingMonths } from "@/lib/site";
 
 export const Route = createFileRoute("/contact")({
@@ -118,7 +119,7 @@ function ContactPage() {
 
         <Fieldset legend="The shoot">
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="What kind of shoot are you looking to book?" required>
+            <Field label="What kind of shoot?" required>
               <select
                 name="shoot_type"
                 required
@@ -133,7 +134,7 @@ function ContactPage() {
                 ))}
               </select>
             </Field>
-            <Field label="Desired month to book for">
+            <Field label="Desired month">
               <select name="desired_month" className="field" defaultValue="">
                 <option value="" disabled>
                   Choose a month
@@ -168,6 +169,23 @@ function ContactPage() {
           </button>
         </div>
       </form>
+
+      <section className="container-site mt-24 max-w-xl space-y-12 pb-20 text-center">
+        <div>
+          <Mail className="mx-auto size-8 text-primary" />
+          <a
+            href={`mailto:${SITE.email}`}
+            className="mt-4 block font-serif text-3xl underline-offset-4 hover:text-primary hover:underline"
+          >
+            {SITE.email}
+          </a>
+        </div>
+
+        <div>
+          <p className="eyebrow mb-6">Or find me on social</p>
+          <SocialLinks size="lg" />
+        </div>
+      </section>
     </>
   );
 }
@@ -184,7 +202,7 @@ function Fieldset({ legend, children }: { legend: string; children: ReactNode })
 function Field({ label, required, children }: { label: string; required?: boolean; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs uppercase tracking-[0.18em] text-muted-foreground">
+      <span className="mb-1.5 block min-h-4 text-xs uppercase tracking-[0.18em] text-muted-foreground">
         {label}
         {required && <span className="text-primary"> *</span>}
       </span>

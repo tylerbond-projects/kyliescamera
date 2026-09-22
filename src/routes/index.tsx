@@ -1,14 +1,31 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import { SITE, FUN_FACTS, TESTIMONIALS, SHOOT_TYPES } from "@/lib/site";
+import { SITE, FUN_FACTS, TESTIMONIALS, SHOOT_TYPES, MISC_PRICING } from "@/lib/site";
 import { SocialLinks } from "@/components/site/SocialLinks";
 import { CATEGORY_IMAGES } from "@/lib/images";
 import { cn } from "@/lib/utils";
 import heroImg from "@/assets/hero.jpg";
 import portraitImg from "@/assets/portrait.jpg";
+import danceImg from "@/assets/dance.jpg";
+import sportsImg from "@/assets/sports.jpg";
+import missionaryImg from "@/assets/missionary.jpg";
+import familyImg from "@/assets/family.jpg";
 
 // Placeholder — swap for a real photo of Kylie whenever it's ready.
 const funFactsImg = portraitImg;
+
+// The four full sessions plus the four Misc. Pricing items — misc items
+// don't have gallery photos yet, so these reuse the closest category shot.
+const MISC_STRIP_IMAGES: Record<string, string> = {
+  "School Dances": danceImg,
+  Friends: familyImg,
+  "Game Day": sportsImg,
+  "Missionary Homecoming & More!": missionaryImg,
+};
+const SHOOT_STRIP = [
+  ...SHOOT_TYPES.map((t) => ({ name: t.name, image: CATEGORY_IMAGES[t.slug] })),
+  ...MISC_PRICING.items.map((item) => ({ name: item.name, image: MISC_STRIP_IMAGES[item.name] })),
+];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -99,19 +116,23 @@ function HomePage() {
               Info & pricing →
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {SHOOT_TYPES.slice(0, 4).map((t) => (
-              <Link key={t.slug} to="/gallery" className="group relative overflow-hidden rounded-md">
+          <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-6 [scrollbar-width:thin]">
+            {SHOOT_STRIP.map((s) => (
+              <Link
+                key={s.name}
+                to="/gallery"
+                className="group relative min-w-[45%] shrink-0 snap-start overflow-hidden rounded-md sm:min-w-[30%] lg:min-w-[22%]"
+              >
                 <img
-                  src={CATEGORY_IMAGES[t.slug]}
-                  alt={t.name}
+                  src={s.image}
+                  alt={s.name}
                   width={1024}
                   height={1280}
                   loading="lazy"
                   className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="hero-overlay absolute inset-0" />
-                <p className="absolute bottom-4 left-4 font-serif text-2xl text-primary-foreground">{t.name}</p>
+                <p className="absolute bottom-4 left-4 font-serif text-2xl text-primary-foreground">{s.name}</p>
               </Link>
             ))}
           </div>
