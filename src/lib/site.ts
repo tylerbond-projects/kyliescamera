@@ -72,11 +72,12 @@ export const MISC_PRICING = {
     { name: "School Dances", price: "$25 per couple", note: "5 couples minimum" },
     { name: "Friends", price: "$75 per person", note: "Individual + group shots" },
     { name: "Game Day", price: "$175 per game", note: "Spotlighting player the whole game" },
+    { name: "Missionary Homecoming & More!", price: "Varied Pricing", note: "" },
   ],
 };
 
 export const INTEREST_LEVELS = [
-  "I want to book with you",
+  "Want to book with you",
   "You're one of our main contenders",
   "Still looking around",
 ] as const;

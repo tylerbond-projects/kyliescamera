@@ -106,12 +106,12 @@ function PricingPage() {
           <h2 className="text-3xl md:text-4xl">{MISC_PRICING.title}</h2>
           <p className="mx-auto mt-3 max-w-lg text-muted-foreground">{MISC_PRICING.blurb}</p>
         </div>
-        <div className="mx-auto mt-10 grid max-w-3xl gap-6 sm:grid-cols-3">
+        <div className="mx-auto mt-10 grid max-w-4xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {MISC_PRICING.items.map((item) => (
             <div key={item.name} className="rounded-lg bg-card p-6 text-center shadow-card">
               <h3 className="font-serif text-xl">{item.name}</h3>
               <p className="font-script mt-2 text-2xl text-primary">{item.price}</p>
-              <p className="mt-2 text-xs text-muted-foreground">{item.note}</p>
+              {item.note && <p className="mt-2 text-xs text-muted-foreground">{item.note}</p>}
             </div>
           ))}
         </div>
