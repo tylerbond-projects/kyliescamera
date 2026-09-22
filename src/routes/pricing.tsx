@@ -1,14 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check } from "lucide-react";
 import { PageIntro } from "@/components/site/PageIntro";
-import { SHOOT_TYPES } from "@/lib/site";
+import { SHOOT_TYPES, MISC_PRICING } from "@/lib/site";
 import { CATEGORY_IMAGES } from "@/lib/images";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { title: "Info & Pricing — Kylie's Camera" },
-      { name: "description", content: "Session details and pricing for portrait, couple, family, wedding, dance, sports, and missionary homecoming photography in Utah County." },
+      { name: "description", content: "Session details and pricing for portrait, couple, family, and wedding photography, plus misc. pricing for school dances, friends, and game days in Utah County." },
       { property: "og:title", content: "Info & Pricing — Kylie's Camera" },
       { property: "og:description", content: "Session details and pricing for every shoot type." },
       { property: "og:type", content: "website" },
@@ -100,6 +100,22 @@ function PricingPage() {
           </article>
         ))}
       </div>
+
+      <section className="container-site mt-4 mb-20">
+        <div className="text-center">
+          <h2 className="text-3xl md:text-4xl">{MISC_PRICING.title}</h2>
+          <p className="mx-auto mt-3 max-w-lg text-muted-foreground">{MISC_PRICING.blurb}</p>
+        </div>
+        <div className="mx-auto mt-10 grid max-w-3xl gap-6 sm:grid-cols-3">
+          {MISC_PRICING.items.map((item) => (
+            <div key={item.name} className="rounded-lg bg-card p-6 text-center shadow-card">
+              <h3 className="font-serif text-xl">{item.name}</h3>
+              <p className="font-script mt-2 text-2xl text-primary">{item.price}</p>
+              <p className="mt-2 text-xs text-muted-foreground">{item.note}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section className="container-site mt-16 rounded-lg bg-sand/70 p-10 text-center md:p-16">
         <h2 className="text-3xl md:text-4xl">Not sure which session fits?</h2>

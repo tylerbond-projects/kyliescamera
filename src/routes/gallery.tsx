@@ -8,7 +8,7 @@ export const Route = createFileRoute("/gallery")({
   head: () => ({
     meta: [
       { title: "Gallery — Kylie's Camera" },
-      { name: "description", content: "A look at recent portrait, couple, family, wedding, dance, sports, and homecoming sessions around Utah County." },
+      { name: "description", content: "A look at recent portrait, couple, family, and wedding sessions around Utah County." },
       { property: "og:title", content: "Gallery — Kylie's Camera" },
       { property: "og:description", content: "Recent sessions around Utah County." },
       { property: "og:type", content: "website" },
@@ -46,7 +46,7 @@ function GalleryPage() {
                   : "border-border bg-card text-muted-foreground hover:text-foreground"
               }`}
             >
-              {t.slug === "missionary" ? "Homecoming & Misc" : t.name.replace(" Session", "")}
+              {t.name}
             </button>
           ))}
         </div>

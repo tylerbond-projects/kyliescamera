@@ -1,4 +1,7 @@
-import { CATEGORY_IMAGES } from "@/lib/images";
+import familyImg from "@/assets/family.jpg";
+import weddingImg from "@/assets/wedding.jpg";
+import portraitImg from "@/assets/portrait.jpg";
+import missionaryImg from "@/assets/missionary.jpg";
 
 export const SITE = {
   name: "Kylie's Camera",
@@ -56,37 +59,21 @@ export const SHOOT_TYPES = [
       { label: "Package 03", hours: "8 hours", price: "$1,600", images: "500+ edited images" },
     ],
   },
-  {
-    slug: "dance",
-    name: "Dance",
-    price: "$150 – $250",
-    blurb: "Movement, light, and grace. Studio or outdoor sessions for dancers of all ages.",
-    details: ["45–60 minutes", "Multiple costume changes", "25+ edited images"],
-    disclaimer: "Travel fee not included*",
-    packages: [],
-  },
-  {
-    slug: "sports",
-    name: "Sports",
-    price: "$125 – $225",
-    blurb: "Individual athlete portraits and action shots that celebrate the grind.",
-    details: ["45 minutes", "Uniform + casual looks", "20+ edited images"],
-    disclaimer: "Travel fee not included*",
-    packages: [],
-  },
-  {
-    slug: "missionary",
-    name: "Missionary Homecoming & Misc",
-    price: "$100 – $200",
-    blurb:
-      "Airport homecomings, farewells, graduations, maternity, and anything else worth remembering.",
-    details: ["30–60 minutes", "Flexible location", "20+ edited images"],
-    disclaimer: "Travel fee not included*",
-    packages: [],
-  },
 ] as const;
 
 export type ShootSlug = (typeof SHOOT_TYPES)[number]["slug"];
+
+// Dance, sports, and homecoming/misc sessions live here as simple line items
+// instead of full session cards.
+export const MISC_PRICING = {
+  title: "Misc. Pricing",
+  blurb: "Pricing for school dances, friends, game days, etc.",
+  items: [
+    { name: "School Dances", price: "$25 per couple", note: "5 couples minimum" },
+    { name: "Friends", price: "$75 per person", note: "Individual + group shots" },
+    { name: "Game Day", price: "$175 per game", note: "Spotlighting player the whole game" },
+  ],
+};
 
 export const INTEREST_LEVELS = [
   "I want to book with you",
@@ -132,28 +119,28 @@ export const TESTIMONIALS: {
     session: "Family Session",
     quote:
       "Kylie made our kids feel so comfortable that they forgot the camera was even there. Every single photo feels like us.",
-    photo: { src: CATEGORY_IMAGES.family, alt: "A family session" },
+    photo: { src: familyImg, alt: "A family session" },
   },
   {
     name: "Tanner & Brooke",
     session: "Wedding",
     quote:
       "We cried looking through our gallery. She caught moments we didn't even know happened. Worth every penny and then some.",
-    photo: { src: CATEGORY_IMAGES.wedding, alt: "A wedding session" },
+    photo: { src: weddingImg, alt: "A wedding session" },
   },
   {
     name: "Elise M.",
     session: "Senior Portraits",
     quote:
       "I'm usually so awkward in photos, but Kylie somehow made it fun. My mom has already printed like twenty of them.",
-    photo: { src: CATEGORY_IMAGES.portrait, alt: "A senior portrait session" },
+    photo: { src: portraitImg, alt: "A senior portrait session" },
   },
   {
     name: "The Christensen Family",
     session: "Missionary Homecoming",
     quote:
       "She was at the airport before us, tucked out of the way, and captured the exact second our son came around the corner.",
-    photo: { src: CATEGORY_IMAGES.missionary, alt: "A missionary homecoming session" },
+    photo: { src: missionaryImg, alt: "A missionary homecoming session" },
   },
 ];
 

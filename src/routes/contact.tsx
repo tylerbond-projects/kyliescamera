@@ -25,7 +25,7 @@ export const Route = createFileRoute("/contact")({
 function ContactPage() {
   return (
     <>
-      <PageIntro eyebrow="Contact & Booking" title="Let's Make Something Beautiful" script="tell me your vision">
+      <PageIntro eyebrow="Contact & Booking" title="Let's Craft Memories That Last a Lifetime" script="tell me your vision">
         Send me a message with the type of shoot, your ideal month, and your vision, and I'll get back to you within 3
         days with availability and next steps.
       </PageIntro>
