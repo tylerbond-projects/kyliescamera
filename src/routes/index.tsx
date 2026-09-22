@@ -121,18 +121,18 @@ function HomePage() {
               <Link
                 key={s.name}
                 to="/gallery"
-                className="group relative min-w-[45%] shrink-0 snap-start overflow-hidden rounded-md sm:min-w-[30%] lg:min-w-[22%]"
+                className="group relative min-w-[40%] shrink-0 snap-start overflow-hidden rounded-md sm:min-w-[26%] lg:min-w-[17%]"
               >
                 <img
                   src={s.image}
                   alt={s.name}
                   width={1024}
-                  height={1280}
+                  height={768}
                   loading="lazy"
-                  className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="aspect-[4/3] w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="hero-overlay absolute inset-0" />
-                <p className="absolute bottom-4 left-4 font-serif text-2xl text-primary-foreground">{s.name}</p>
+                <p className="absolute bottom-3 left-3 font-serif text-lg text-primary-foreground">{s.name}</p>
               </Link>
             ))}
           </div>
