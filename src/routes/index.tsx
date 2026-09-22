@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Quote } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { SITE, FUN_FACTS, TESTIMONIALS, SHOOT_TYPES } from "@/lib/site";
 import { SocialLinks } from "@/components/site/SocialLinks";
 import { CATEGORY_IMAGES } from "@/lib/images";
@@ -172,7 +172,6 @@ function HomePage() {
                   </>
                 )}
                 <div className="relative">
-                  <Quote className={cn("size-6", t.photo ? "text-primary-foreground" : "text-primary")} />
                   <blockquote
                     className={cn(
                       "mt-4 font-serif text-xl leading-relaxed italic",
@@ -214,7 +213,7 @@ function FunFact({ fact }: { fact: { title: string; text: string } }) {
   return (
     <li>
       <h3 className="text-2xl uppercase tracking-wide md:text-3xl">{fact.title}</h3>
-      <p className="mt-2 text-lg leading-relaxed text-muted-foreground md:text-xl">{fact.text}</p>
+      <p className="mt-2 text-lg uppercase leading-relaxed text-muted-foreground md:text-xl">{fact.text}</p>
     </li>
   );
 }

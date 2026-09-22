@@ -1,3 +1,5 @@
+import { CATEGORY_IMAGES } from "@/lib/images";
+
 export const SITE = {
   name: "Kylie's Camera",
   motto: "Authentic, Heartfelt Photography.",
@@ -24,9 +26,9 @@ export const SHOOT_TYPES = [
   {
     slug: "couple",
     name: "Couple",
-    price: "$200 – $300",
-    blurb: "Engagements, anniversaries, and everyday love. Candid, close, and full of feeling.",
-    details: ["60 minutes", "1–2 locations", "40+ edited images"],
+    price: "$200",
+    blurb: "Perfect for proposals, couples, announcements, etc!",
+    details: ["Up to 1 hour of shooting", "1 outfit ($15 outfit add-on)", "130+ edited images", "1 location", "1–2 week turnaround"],
     disclaimer: "",
   },
   {
@@ -103,8 +105,8 @@ export function upcomingMonths(count = 14): string[] {
   return out;
 }
 
-// Add a `photo: { src: yourImport, alt: "..." }` to any testimonial below to use
-// that photo as the card's background instead of the plain card style.
+// Set to a real client photo whenever one's ready; these are theoretical
+// stand-ins reusing the category shots from the gallery.
 export type TestimonialPhoto = { src: string; alt: string };
 
 export const TESTIMONIALS: {
@@ -118,24 +120,28 @@ export const TESTIMONIALS: {
     session: "Family Session",
     quote:
       "Kylie made our kids feel so comfortable that they forgot the camera was even there. Every single photo feels like us.",
+    photo: { src: CATEGORY_IMAGES.family, alt: "A family session" },
   },
   {
     name: "Tanner & Brooke",
     session: "Wedding",
     quote:
       "We cried looking through our gallery. She caught moments we didn't even know happened. Worth every penny and then some.",
+    photo: { src: CATEGORY_IMAGES.wedding, alt: "A wedding session" },
   },
   {
     name: "Elise M.",
     session: "Senior Portraits",
     quote:
       "I'm usually so awkward in photos, but Kylie somehow made it fun. My mom has already printed like twenty of them.",
+    photo: { src: CATEGORY_IMAGES.portrait, alt: "A senior portrait session" },
   },
   {
     name: "The Christensen Family",
     session: "Missionary Homecoming",
     quote:
       "She was at the airport before us, tucked out of the way, and captured the exact second our son came around the corner.",
+    photo: { src: CATEGORY_IMAGES.missionary, alt: "A missionary homecoming session" },
   },
 ];
 
