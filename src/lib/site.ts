@@ -17,7 +17,7 @@ export const SITE = {
 export const SHOOT_TYPES = [
   {
     slug: "portrait",
-    name: "Portrait Session",
+    name: "Portrait",
     price: "$180",
     blurb: "Perfect for seniors, grads, missionaries, branding or just because!",
     details: ["Up to 1 hour of shooting", "2 outfits ($15 outfit add-on)", "1 location", "120+ edited images", "1–2 week turnaround"],
@@ -49,12 +49,11 @@ export const SHOOT_TYPES = [
     blurb:
       "This moment is for you! Every wedding is unique. If you're planning a wedding that doesn't quite fit these packages, I'd love to create a custom package just for you.",
     details: ["Engagement session included", "4–6 week turnaround", "Sneak peeks within 72 hours"],
-    disclaimer: "",
-    // TODO: swap in the real edited-image counts for each package.
+    disclaimer: "Travel fee not included*",
     packages: [
-      { label: "Package 01", hours: "4 hours", price: "$1,000", images: "150+ edited images" },
-      { label: "Package 02", hours: "6 hours", price: "$1,300", images: "250+ edited images" },
-      { label: "Package 03", hours: "8 hours", price: "$1,600", images: "400+ edited images" },
+      { label: "Package 01", hours: "4 hours", price: "$1,000", images: "300+ edited images" },
+      { label: "Package 02", hours: "6 hours", price: "$1,300", images: "400+ edited images" },
+      { label: "Package 03", hours: "8 hours", price: "$1,600", images: "500+ edited images" },
     ],
   },
   {
@@ -63,7 +62,7 @@ export const SHOOT_TYPES = [
     price: "$150 – $250",
     blurb: "Movement, light, and grace. Studio or outdoor sessions for dancers of all ages.",
     details: ["45–60 minutes", "Multiple costume changes", "25+ edited images"],
-    disclaimer: "",
+    disclaimer: "Travel fee not included*",
     packages: [],
   },
   {
@@ -72,7 +71,7 @@ export const SHOOT_TYPES = [
     price: "$125 – $225",
     blurb: "Individual athlete portraits and action shots that celebrate the grind.",
     details: ["45 minutes", "Uniform + casual looks", "20+ edited images"],
-    disclaimer: "",
+    disclaimer: "Travel fee not included*",
     packages: [],
   },
   {
@@ -82,7 +81,7 @@ export const SHOOT_TYPES = [
     blurb:
       "Airport homecomings, farewells, graduations, maternity, and anything else worth remembering.",
     details: ["30–60 minutes", "Flexible location", "20+ edited images"],
-    disclaimer: "",
+    disclaimer: "Travel fee not included*",
     packages: [],
   },
 ] as const;
