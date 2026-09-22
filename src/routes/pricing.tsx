@@ -26,6 +26,26 @@ function PricingPage() {
         private online gallery with a print release. Pricing ranges reflect session length and location.
       </PageIntro>
 
+      <section className="container-site mb-20 grid gap-8 rounded-lg bg-sand/70 p-8 sm:grid-cols-2 md:p-12">
+        <div>
+          <h2 className="font-serif text-xl">Travel Fee</h2>
+          <p className="mt-2 leading-relaxed text-muted-foreground">
+            Located in Utah County. There will be a travel fee if it is more than a 20 mile radius from
+            my residency! ($0.75 per mile) Travel fees aren't included in the prices below!
+          </p>
+        </div>
+        <div>
+          <h2 className="font-serif text-xl">Deposit When Booking</h2>
+          <p className="mt-2 leading-relaxed text-muted-foreground">
+            To claim your date, a 25% deposit is due when booking. This goes toward your total — not an
+            extra charge! Deposits are non-refundable!
+          </p>
+        </div>
+        <p className="border-t border-border pt-6 text-center text-sm font-medium sm:col-span-2">
+          Outfit add-on: $15 per additional outfit
+        </p>
+      </section>
+
       <div className="container-site flex flex-col gap-20 pb-10">
         {SHOOT_TYPES.map((t, i) => (
           <article
@@ -56,6 +76,7 @@ function PricingPage() {
                   </li>
                 ))}
               </ul>
+              {t.disclaimer && <p className="mt-3 text-xs text-muted-foreground">{t.disclaimer}</p>}
               <Link to="/contact" search={{ type: t.slug }} className="btn-outline mt-8">
                 Inquire about {t.name.split(" ")[0]}
               </Link>

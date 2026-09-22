@@ -124,24 +124,24 @@ function HomePage() {
           <p className="eyebrow">Get to know me</p>
           <h2 className="mt-3 text-4xl md:text-5xl">Fun facts about me</h2>
         </div>
-        <div className="mx-auto mt-14 grid max-w-4xl items-center gap-10 md:grid-cols-[1fr_auto_1fr] md:gap-6">
-          <ul className="grid gap-8 text-center sm:grid-cols-2 md:grid-cols-1 md:text-right">
+        <div className="mx-auto mt-14 grid max-w-5xl items-center gap-12 md:grid-cols-[1fr_auto_1fr] md:gap-10">
+          <ul className="grid gap-10 text-center sm:grid-cols-2 md:grid-cols-1 md:text-right">
             {FUN_FACTS.slice(0, 3).map((f) => (
               <FunFact key={f.title} fact={f} />
             ))}
           </ul>
-          <div className="relative order-first mx-auto w-48 shrink-0 md:order-none md:w-56">
+          <div className="relative order-first mx-auto w-64 shrink-0 sm:w-72 md:order-none md:w-80 lg:w-96">
             <div className="absolute -inset-3 rotate-2 rounded-lg bg-blush" />
             <img
               src={funFactsImg}
               alt="Kylie"
-              width={400}
-              height={533}
+              width={600}
+              height={900}
               loading="lazy"
-              className="relative aspect-[3/4] w-full rounded-md object-cover shadow-soft"
+              className="relative aspect-[2/3] w-full rounded-md object-cover shadow-soft"
             />
           </div>
-          <ul className="grid gap-8 text-center sm:grid-cols-2 md:grid-cols-1 md:text-left">
+          <ul className="grid gap-10 text-center sm:grid-cols-2 md:grid-cols-1 md:text-left">
             {FUN_FACTS.slice(3).map((f) => (
               <FunFact key={f.title} fact={f} />
             ))}
@@ -213,8 +213,8 @@ function HomePage() {
 function FunFact({ fact }: { fact: { title: string; text: string } }) {
   return (
     <li>
-      <h3 className="text-xl">{fact.title}</h3>
-      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{fact.text}</p>
+      <h3 className="text-2xl uppercase tracking-wide md:text-3xl">{fact.title}</h3>
+      <p className="mt-2 text-lg leading-relaxed text-muted-foreground md:text-xl">{fact.text}</p>
     </li>
   );
 }

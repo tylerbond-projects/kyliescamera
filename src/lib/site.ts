@@ -16,10 +16,10 @@ export const SHOOT_TYPES = [
   {
     slug: "portrait",
     name: "Portrait Session",
-    price: "$150 – $250",
-    blurb:
-      "Seniors, headshots, milestones, or just because. A relaxed session focused entirely on you.",
-    details: ["45–60 minutes", "1 location", "25+ edited images"],
+    price: "$180",
+    blurb: "Perfect for seniors, grads, missionaries, branding or just because!",
+    details: ["Up to 1 hour of shooting", "2 outfits ($15 outfit add-on)", "1 location", "120+ edited images", "1–2 week turnaround"],
+    disclaimer: "Travel fee not included*",
   },
   {
     slug: "couple",
@@ -27,6 +27,7 @@ export const SHOOT_TYPES = [
     price: "$200 – $300",
     blurb: "Engagements, anniversaries, and everyday love. Candid, close, and full of feeling.",
     details: ["60 minutes", "1–2 locations", "40+ edited images"],
+    disclaimer: "",
   },
   {
     slug: "family",
@@ -34,6 +35,7 @@ export const SHOOT_TYPES = [
     price: "$250 – $350",
     blurb: "Playful, unposed sessions that capture your family exactly as they are right now.",
     details: ["60 minutes", "Up to 8 people", "40+ edited images"],
+    disclaimer: "",
   },
   {
     slug: "wedding",
@@ -41,6 +43,7 @@ export const SHOOT_TYPES = [
     price: "$1,500 – $3,500",
     blurb: "From getting ready to the last dance. Full-day coverage with an heirloom gallery.",
     details: ["6–10 hours", "Engagement session included", "500+ edited images"],
+    disclaimer: "",
   },
   {
     slug: "dance",
@@ -48,6 +51,7 @@ export const SHOOT_TYPES = [
     price: "$150 – $250",
     blurb: "Movement, light, and grace. Studio or outdoor sessions for dancers of all ages.",
     details: ["45–60 minutes", "Multiple costume changes", "25+ edited images"],
+    disclaimer: "",
   },
   {
     slug: "sports",
@@ -55,6 +59,7 @@ export const SHOOT_TYPES = [
     price: "$125 – $225",
     blurb: "Individual athlete portraits and action shots that celebrate the grind.",
     details: ["45 minutes", "Uniform + casual looks", "20+ edited images"],
+    disclaimer: "",
   },
   {
     slug: "missionary",
@@ -63,6 +68,7 @@ export const SHOOT_TYPES = [
     blurb:
       "Airport homecomings, farewells, graduations, maternity, and anything else worth remembering.",
     details: ["30–60 minutes", "Flexible location", "20+ edited images"],
+    disclaimer: "",
   },
 ] as const;
 
