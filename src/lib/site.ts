@@ -8,6 +8,7 @@ export const SITE = {
     { label: "Instagram", handle: "@kylie.photography", href: "https://instagram.com/kylie.photography" },
     { label: "Facebook", handle: "Kylie's Camera", href: "https://facebook.com/kyliephotography" },
     { label: "TikTok", handle: "@kylie.photography", href: "https://tiktok.com/@kylie.photography" },
+    { label: "Pinterest", handle: "@kylie.photography", href: "https://pinterest.com/kylie.photography" },
   ],
 };
 
@@ -149,5 +150,13 @@ export const FAQS = [
   {
     q: "Do you help with posing?",
     a: "Yes! I have so many poses and prompts that we will run through during your session! Feel free to bring any inspo, or photos you are wanting to recreate!",
+  },
+  {
+    q: "What is your cancellation/rescheduling fee?",
+    a: "When booking, there is a non-refundable deposit. Shoots can be canceled at no additional cost, but the deposit will not be refunded. Rescheduling must be done 1 week in advance, or an additional deposit will be required.",
+  },
+  {
+    q: "Can I get the RAW files?",
+    a: "My editing style is what connects me to my brand so, when you hire me you hire me for my style. With that being said I do not give out RAW files :)",
   },
 ];

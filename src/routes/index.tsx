@@ -125,27 +125,27 @@ function HomePage() {
           <h2 className="mt-3 text-4xl md:text-5xl">Fun facts about me</h2>
         </div>
         <div className="mx-auto mt-14 grid max-w-4xl items-center gap-10 md:grid-cols-[1fr_auto_1fr] md:gap-6">
-          <ol className="grid gap-8 text-center sm:grid-cols-2 md:grid-cols-1 md:text-right">
-            {FUN_FACTS.slice(0, 3).map((f, i) => (
-              <FunFact key={f.title} index={i} fact={f} />
+          <ul className="grid gap-8 text-center sm:grid-cols-2 md:grid-cols-1 md:text-right">
+            {FUN_FACTS.slice(0, 3).map((f) => (
+              <FunFact key={f.title} fact={f} />
             ))}
-          </ol>
+          </ul>
           <div className="relative order-first mx-auto w-48 shrink-0 md:order-none md:w-56">
-            <div className="absolute -inset-3 rotate-2 rounded-full bg-blush" />
+            <div className="absolute -inset-3 rotate-2 rounded-lg bg-blush" />
             <img
               src={funFactsImg}
               alt="Kylie"
-              width={512}
-              height={512}
+              width={400}
+              height={533}
               loading="lazy"
-              className="relative aspect-square w-full rounded-full object-cover shadow-soft"
+              className="relative aspect-[3/4] w-full rounded-md object-cover shadow-soft"
             />
           </div>
-          <ol className="grid gap-8 text-center sm:grid-cols-2 md:grid-cols-1 md:text-left">
-            {FUN_FACTS.slice(3).map((f, i) => (
-              <FunFact key={f.title} index={i + 3} fact={f} />
+          <ul className="grid gap-8 text-center sm:grid-cols-2 md:grid-cols-1 md:text-left">
+            {FUN_FACTS.slice(3).map((f) => (
+              <FunFact key={f.title} fact={f} />
             ))}
-          </ol>
+          </ul>
         </div>
       </section>
 
@@ -210,11 +210,10 @@ function HomePage() {
   );
 }
 
-function FunFact({ index, fact }: { index: number; fact: { title: string; text: string } }) {
+function FunFact({ fact }: { fact: { title: string; text: string } }) {
   return (
     <li>
-      <span className="font-script text-4xl text-primary">{String(index + 1).padStart(2, "0")}</span>
-      <h3 className="mt-1 text-xl">{fact.title}</h3>
+      <h3 className="text-xl">{fact.title}</h3>
       <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{fact.text}</p>
     </li>
   );
