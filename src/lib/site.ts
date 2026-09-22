@@ -48,12 +48,13 @@ export const SHOOT_TYPES = [
     price: "",
     blurb:
       "This moment is for you! Every wedding is unique. If you're planning a wedding that doesn't quite fit these packages, I'd love to create a custom package just for you.",
-    details: ["Engagement session included", "500+ edited images"],
+    details: ["Engagement session included", "4–6 week turnaround", "Sneak peeks within 72 hours"],
     disclaimer: "",
+    // TODO: swap in the real edited-image counts for each package.
     packages: [
-      { label: "Package 01", hours: "4 hours", price: "$1,000" },
-      { label: "Package 02", hours: "6 hours", price: "$1,300" },
-      { label: "Package 03", hours: "8 hours", price: "$1,600" },
+      { label: "Package 01", hours: "4 hours", price: "$1,000", images: "150+ edited images" },
+      { label: "Package 02", hours: "6 hours", price: "$1,300", images: "250+ edited images" },
+      { label: "Package 03", hours: "8 hours", price: "$1,600", images: "400+ edited images" },
     ],
   },
   {
