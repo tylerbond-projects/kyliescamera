@@ -69,10 +69,10 @@ export const MISC_PRICING = {
   title: "Misc. Pricing",
   blurb: "Pricing for school dances, friends, game days, etc.",
   items: [
-    { name: "School Dances", price: "$25 per couple", note: "5 couples minimum" },
-    { name: "Friends", price: "$75 per person", note: "Individual + group shots" },
-    { name: "Game Day", price: "$175 per game", note: "Spotlighting player the whole game" },
-    { name: "Missionary Homecoming & More!", price: "Varied Pricing", note: "" },
+    { slug: "school-dances", name: "School Dances", price: "$25 per couple", note: "5 couples minimum" },
+    { slug: "friends", name: "Friends", price: "$75 per person", note: "Individual + group shots" },
+    { slug: "game-day", name: "Game Day", price: "$175 per game", note: "Spotlighting player the whole game" },
+    { slug: "missionary", name: "Missionary Homecoming & More!", price: "Varied Pricing", note: "" },
   ],
 };
 

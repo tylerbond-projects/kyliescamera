@@ -134,8 +134,8 @@ function ContactPage() {
                 ))}
               </select>
             </Field>
-            <Field label="Desired month">
-              <select name="desired_month" className="field" defaultValue="">
+            <Field label="Desired month" required>
+              <select name="desired_month" required className="field" defaultValue="">
                 <option value="" disabled>
                   Choose a month
                 </option>

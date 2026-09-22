@@ -51,7 +51,7 @@ function PricingPage() {
           <article
             key={t.slug}
             id={t.slug}
-            className={`grid items-center gap-8 md:grid-cols-2 md:gap-16 ${i % 2 ? "md:[&>div:first-child]:order-2" : ""}`}
+            className={`grid scroll-mt-24 items-center gap-8 md:grid-cols-2 md:gap-16 ${i % 2 ? "md:[&>div:first-child]:order-2" : ""}`}
           >
             <div className="relative mx-auto w-full max-w-md">
               <div className={`absolute -inset-3 rounded-lg bg-blush ${i % 2 ? "rotate-2" : "-rotate-2"}`} />
@@ -108,7 +108,7 @@ function PricingPage() {
         </div>
         <div className="mx-auto mt-10 grid max-w-4xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {MISC_PRICING.items.map((item) => (
-            <div key={item.name} className="rounded-lg bg-card p-6 text-center shadow-card">
+            <div key={item.slug} id={item.slug} className="scroll-mt-24 rounded-lg bg-card p-6 text-center shadow-card">
               <h3 className="font-serif text-xl">{item.name}</h3>
               <p className="font-script mt-2 text-2xl text-primary">{item.price}</p>
               {item.note && <p className="mt-2 text-xs text-muted-foreground">{item.note}</p>}

@@ -23,8 +23,8 @@ const MISC_STRIP_IMAGES: Record<string, string> = {
   "Missionary Homecoming & More!": missionaryImg,
 };
 const SHOOT_STRIP = [
-  ...SHOOT_TYPES.map((t) => ({ name: t.name, image: CATEGORY_IMAGES[t.slug] })),
-  ...MISC_PRICING.items.map((item) => ({ name: item.name, image: MISC_STRIP_IMAGES[item.name] })),
+  ...SHOOT_TYPES.map((t) => ({ name: t.name, slug: t.slug, image: CATEGORY_IMAGES[t.slug] })),
+  ...MISC_PRICING.items.map((item) => ({ name: item.name, slug: item.slug, image: MISC_STRIP_IMAGES[item.name] })),
 ];
 
 export const Route = createFileRoute("/")({
@@ -118,7 +118,12 @@ function HomePage() {
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {SHOOT_STRIP.map((s) => (
-              <Link key={s.name} to="/gallery" className="group relative overflow-hidden rounded-md">
+              <Link
+                key={s.name}
+                to="/pricing"
+                hash={s.slug}
+                className="group relative overflow-hidden rounded-md"
+              >
                 <img
                   src={s.image}
                   alt={s.name}
