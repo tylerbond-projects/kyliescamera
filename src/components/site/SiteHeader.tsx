@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { Camera, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { SITE } from "@/lib/site";
 
@@ -17,9 +17,12 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur">
       <div className="container-site flex h-16 items-center justify-between md:h-20">
-        <Link to="/" className="flex flex-col leading-none" onClick={() => setOpen(false)}>
-          <span className="font-serif text-2xl tracking-wide md:text-3xl">{SITE.name}</span>
-          <span className="eyebrow mt-1 hidden text-[0.6rem] sm:block">{SITE.location}</span>
+        <Link to="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
+          <Camera className="size-6 shrink-0 text-primary md:size-7" strokeWidth={1.5} />
+          <span className="flex flex-col leading-none">
+            <span className="font-serif text-2xl tracking-wide md:text-3xl">{SITE.name}</span>
+            <span className="eyebrow mt-1 hidden text-[0.6rem] sm:block">{SITE.location}</span>
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
