@@ -22,6 +22,7 @@ export const SHOOT_TYPES = [
     blurb: "Perfect for seniors, grads, missionaries, branding or just because!",
     details: ["Up to 1 hour of shooting", "2 outfits ($15 outfit add-on)", "1 location", "120+ edited images", "1–2 week turnaround"],
     disclaimer: "Travel fee not included*",
+    packages: [],
   },
   {
     slug: "couple",
@@ -29,23 +30,31 @@ export const SHOOT_TYPES = [
     price: "$200",
     blurb: "Perfect for proposals, couples, announcements, etc!",
     details: ["Up to 1 hour of shooting", "1 outfit ($15 outfit add-on)", "130+ edited images", "1 location", "1–2 week turnaround"],
-    disclaimer: "",
+    disclaimer: "Travel fee not included*",
+    packages: [],
   },
   {
     slug: "family",
     name: "Family",
-    price: "$250 – $350",
-    blurb: "Playful, unposed sessions that capture your family exactly as they are right now.",
-    details: ["60 minutes", "Up to 8 people", "40+ edited images"],
-    disclaimer: "",
+    price: "Starting at $300",
+    blurb: "Perfect for a family up to 6 (message me for quote for a bigger family).",
+    details: ["Up to 1 hour of shooting", "1 location", "Multiple group combinations", "150+ edited images", "1–2 week turnaround"],
+    disclaimer: "Travel fee not included*",
+    packages: [],
   },
   {
     slug: "wedding",
     name: "Wedding",
-    price: "$1,500 – $3,500",
-    blurb: "From getting ready to the last dance. Full-day coverage with an heirloom gallery.",
-    details: ["6–10 hours", "Engagement session included", "500+ edited images"],
+    price: "",
+    blurb:
+      "This moment is for you! Every wedding is unique. If you're planning a wedding that doesn't quite fit these packages, I'd love to create a custom package just for you.",
+    details: ["Engagement session included", "500+ edited images"],
     disclaimer: "",
+    packages: [
+      { label: "Package 01", hours: "4 hours", price: "$1,000" },
+      { label: "Package 02", hours: "6 hours", price: "$1,300" },
+      { label: "Package 03", hours: "8 hours", price: "$1,600" },
+    ],
   },
   {
     slug: "dance",
@@ -54,6 +63,7 @@ export const SHOOT_TYPES = [
     blurb: "Movement, light, and grace. Studio or outdoor sessions for dancers of all ages.",
     details: ["45–60 minutes", "Multiple costume changes", "25+ edited images"],
     disclaimer: "",
+    packages: [],
   },
   {
     slug: "sports",
@@ -62,6 +72,7 @@ export const SHOOT_TYPES = [
     blurb: "Individual athlete portraits and action shots that celebrate the grind.",
     details: ["45 minutes", "Uniform + casual looks", "20+ edited images"],
     disclaimer: "",
+    packages: [],
   },
   {
     slug: "missionary",
@@ -71,6 +82,7 @@ export const SHOOT_TYPES = [
       "Airport homecomings, farewells, graduations, maternity, and anything else worth remembering.",
     details: ["30–60 minutes", "Flexible location", "20+ edited images"],
     disclaimer: "",
+    packages: [],
   },
 ] as const;
 

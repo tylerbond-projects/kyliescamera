@@ -67,7 +67,20 @@ function PricingPage() {
             <div>
               <p className="eyebrow">{String(i + 1).padStart(2, "0")}</p>
               <h2 className="mt-3 text-4xl md:text-5xl">{t.name}</h2>
-              <p className="font-script mt-1 text-3xl text-primary">{t.price}</p>
+              {t.packages.length > 0 ? (
+                <div className="mt-3 space-y-2">
+                  {t.packages.map((pkg) => (
+                    <div key={pkg.label} className="flex flex-wrap items-baseline gap-x-3">
+                      <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                        {pkg.label} · {pkg.hours}
+                      </span>
+                      <span className="font-script text-2xl text-primary">{pkg.price}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="font-script mt-1 text-3xl text-primary">{t.price}</p>
+              )}
               <p className="mt-5 leading-relaxed text-muted-foreground">{t.blurb}</p>
               <ul className="mt-6 space-y-2 text-sm">
                 {t.details.map((d) => (
