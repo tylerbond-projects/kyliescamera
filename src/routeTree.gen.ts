@@ -18,6 +18,9 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminContentRouteImport } from './routes/admin/content'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as AdminPhotosRouteImport } from './routes/admin/photos'
+import { Route as ClientSlugRouteImport } from './routes/client.$slug'
+import { Route as AdminClientGalleriesIndexRouteImport } from './routes/admin/client-galleries/index'
+import { Route as AdminClientGalleriesIdRouteImport } from './routes/admin/client-galleries/$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +67,22 @@ const AdminPhotosRoute = AdminPhotosRouteImport.update({
   path: '/admin/photos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClientSlugRoute = ClientSlugRouteImport.update({
+  id: '/client/$slug',
+  path: '/client/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminClientGalleriesIndexRoute =
+  AdminClientGalleriesIndexRouteImport.update({
+    id: '/admin/client-galleries/',
+    path: '/admin/client-galleries/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AdminClientGalleriesIdRoute = AdminClientGalleriesIdRouteImport.update({
+  id: '/admin/client-galleries/$id',
+  path: '/admin/client-galleries/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -74,7 +93,10 @@ export interface FileRoutesByFullPath {
   '/admin/content': typeof AdminContentRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/photos': typeof AdminPhotosRoute
+  '/client/$slug': typeof ClientSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/admin/client-galleries/$id': typeof AdminClientGalleriesIdRoute
+  '/admin/client-galleries/': typeof AdminClientGalleriesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -85,7 +107,10 @@ export interface FileRoutesByTo {
   '/admin/content': typeof AdminContentRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/photos': typeof AdminPhotosRoute
+  '/client/$slug': typeof ClientSlugRoute
   '/admin': typeof AdminIndexRoute
+  '/admin/client-galleries/$id': typeof AdminClientGalleriesIdRoute
+  '/admin/client-galleries': typeof AdminClientGalleriesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -97,7 +122,10 @@ export interface FileRoutesById {
   '/admin/content': typeof AdminContentRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/photos': typeof AdminPhotosRoute
+  '/client/$slug': typeof ClientSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/admin/client-galleries/$id': typeof AdminClientGalleriesIdRoute
+  '/admin/client-galleries/': typeof AdminClientGalleriesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -110,7 +138,10 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/login'
     | '/admin/photos'
+    | '/client/$slug'
     | '/admin/'
+    | '/admin/client-galleries/$id'
+    | '/admin/client-galleries/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -121,7 +152,10 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/login'
     | '/admin/photos'
+    | '/client/$slug'
     | '/admin'
+    | '/admin/client-galleries/$id'
+    | '/admin/client-galleries'
   id:
     | '__root__'
     | '/'
@@ -132,7 +166,10 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/login'
     | '/admin/photos'
+    | '/client/$slug'
     | '/admin/'
+    | '/admin/client-galleries/$id'
+    | '/admin/client-galleries/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -144,7 +181,10 @@ export interface RootRouteChildren {
   AdminContentRoute: typeof AdminContentRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminPhotosRoute: typeof AdminPhotosRoute
+  ClientSlugRoute: typeof ClientSlugRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminClientGalleriesIdRoute: typeof AdminClientGalleriesIdRoute
+  AdminClientGalleriesIndexRoute: typeof AdminClientGalleriesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +252,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPhotosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/client/$slug': {
+      id: '/client/$slug'
+      path: '/client/$slug'
+      fullPath: '/client/$slug'
+      preLoaderRoute: typeof ClientSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/client-galleries/': {
+      id: '/admin/client-galleries/'
+      path: '/admin/client-galleries'
+      fullPath: '/admin/client-galleries/'
+      preLoaderRoute: typeof AdminClientGalleriesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/client-galleries/$id': {
+      id: '/admin/client-galleries/$id'
+      path: '/admin/client-galleries/$id'
+      fullPath: '/admin/client-galleries/$id'
+      preLoaderRoute: typeof AdminClientGalleriesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -224,7 +285,10 @@ const rootRouteChildren: RootRouteChildren = {
   AdminContentRoute: AdminContentRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminPhotosRoute: AdminPhotosRoute,
+  ClientSlugRoute: ClientSlugRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminClientGalleriesIdRoute: AdminClientGalleriesIdRoute,
+  AdminClientGalleriesIndexRoute: AdminClientGalleriesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

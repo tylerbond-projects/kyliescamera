@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { GALLERY_PUBLIC_URL_BASE } from "@/lib/r2";
 
 export const adminLogin = createServerFn({ method: "POST" })
   .validator((data: unknown) => z.object({ password: z.string().min(1) }).parse(data))
@@ -27,7 +28,6 @@ export const getAdminStatus = createServerFn({ method: "GET" }).handler(async ()
   return { isAdmin: session.data.admin === true };
 });
 
-const GALLERY_PUBLIC_URL_BASE = "https://pub-e2b6b4f7c151426f98b88d2c72fd9dac.r2.dev";
 const categorySchema = z.string().min(1).max(60);
 
 export type GalleryPhotoRow = {

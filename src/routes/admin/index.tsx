@@ -43,11 +43,20 @@ function AdminDashboard() {
         >
           <h2 className="font-serif text-xl">Edit Site Content</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Bio, fun facts, FAQ, and pricing text.
+            Bio, fun facts, testimonials, FAQ, and pricing text.
+          </p>
+        </Link>
+        <Link
+          to="/admin/client-galleries"
+          className="block rounded-lg border border-border bg-card p-6 shadow-card transition-transform hover:-translate-y-0.5"
+        >
+          <h2 className="font-serif text-xl">Client Galleries</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Create a private link for a client to view and download their photos.
           </p>
         </Link>
         <p className="text-xs text-muted-foreground">
-          Testimonials and basic site info (name, socials) still go through your developer for now.
+          Basic site info (name, socials) still goes through your developer for now.
         </p>
         <button
           type="button"

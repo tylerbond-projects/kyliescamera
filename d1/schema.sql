@@ -22,3 +22,25 @@ CREATE TABLE IF NOT EXISTS site_content (
   data TEXT NOT NULL,
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+-- Client galleries: a private, shareable link per client (at /client/<slug>)
+-- where they can view and download their finished photos -- the feature
+-- Pixieset's client galleries provide. Photos are deleted explicitly in
+-- application code rather than relying on ON DELETE CASCADE.
+CREATE TABLE IF NOT EXISTS client_galleries (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  slug TEXT NOT NULL UNIQUE,
+  client_name TEXT NOT NULL,
+  title TEXT,
+  message TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS client_gallery_photos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  gallery_id INTEGER NOT NULL,
+  url TEXT NOT NULL,
+  caption TEXT,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);

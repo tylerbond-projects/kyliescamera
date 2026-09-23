@@ -18,7 +18,7 @@ export type CloudflareEnv = {
     put: (
       key: string,
       value: ArrayBuffer,
-      options?: { httpMetadata?: { contentType?: string } },
+      options?: { httpMetadata?: { contentType?: string; contentDisposition?: string } },
     ) => Promise<unknown>;
     delete: (key: string) => Promise<void>;
   };
