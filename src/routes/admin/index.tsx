@@ -37,9 +37,17 @@ function AdminDashboard() {
             Upload and remove gallery photos for each session type.
           </p>
         </Link>
+        <Link
+          to="/admin/content"
+          className="block rounded-lg border border-border bg-card p-6 shadow-card transition-transform hover:-translate-y-0.5"
+        >
+          <h2 className="font-serif text-xl">Edit Site Content</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Bio, fun facts, FAQ, and pricing text.
+          </p>
+        </Link>
         <p className="text-xs text-muted-foreground">
-          Editing bio, pricing, FAQ, and testimonial text from here is coming next — for now those
-          still go through your developer.
+          Testimonials and basic site info (name, socials) still go through your developer for now.
         </p>
         <button
           type="button"

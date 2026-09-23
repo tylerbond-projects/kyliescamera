@@ -10,10 +10,31 @@ export const SITE = {
   location: "Utah County, UT",
   email: "hello@kyliephotography.com",
   socials: [
-    { label: "Instagram", handle: "@kylie.photography", href: "https://instagram.com/kylie.photography" },
+    {
+      label: "Instagram",
+      handle: "@kylie.photography",
+      href: "https://instagram.com/kylie.photography",
+    },
     { label: "Facebook", handle: "Kylie's Camera", href: "https://facebook.com/kyliephotography" },
-    { label: "TikTok", handle: "@kylie.photography", href: "https://tiktok.com/@kylie.photography" },
-    { label: "Pinterest", handle: "@kylie.photography", href: "https://pinterest.com/kylie.photography" },
+    {
+      label: "TikTok",
+      handle: "@kylie.photography",
+      href: "https://tiktok.com/@kylie.photography",
+    },
+    {
+      label: "Pinterest",
+      handle: "@kylie.photography",
+      href: "https://pinterest.com/kylie.photography",
+    },
+  ],
+};
+
+export const BIO = {
+  eyebrow: "Meet the Photographer",
+  header: "Hi! I'm Kylie Bond!",
+  paragraphs: [
+    "A Portrait & Couples Photographer capturing fun, natural moments. I love taking photos of seniors, couples, weddings, etc. I love anything to do with photography and have been doing photography since my sophomore year of high school. It's been such an incredible journey. I love being able to capture life's little moments.",
+    "I can't wait to work with you!",
   ],
 };
 
@@ -23,7 +44,13 @@ export const SHOOT_TYPES = [
     name: "Portrait",
     price: "$180",
     blurb: "Perfect for seniors, grads, missionaries, branding or just because!",
-    details: ["Up to 1 hour of shooting", "2 outfits ($15 outfit add-on)", "1 location", "120+ edited images", "1–2 week turnaround"],
+    details: [
+      "Up to 1 hour of shooting",
+      "2 outfits ($15 outfit add-on)",
+      "1 location",
+      "120+ edited images",
+      "1–2 week turnaround",
+    ],
     disclaimer: "Travel fee not included*",
     packages: [],
   },
@@ -32,7 +59,13 @@ export const SHOOT_TYPES = [
     name: "Couple",
     price: "$200",
     blurb: "Perfect for proposals, couples, announcements, etc!",
-    details: ["Up to 1 hour of shooting", "1 outfit ($15 outfit add-on)", "130+ edited images", "1 location", "1–2 week turnaround"],
+    details: [
+      "Up to 1 hour of shooting",
+      "1 outfit ($15 outfit add-on)",
+      "130+ edited images",
+      "1 location",
+      "1–2 week turnaround",
+    ],
     disclaimer: "Travel fee not included*",
     packages: [],
   },
@@ -41,7 +74,13 @@ export const SHOOT_TYPES = [
     name: "Family",
     price: "Starting at $300",
     blurb: "Perfect for a family up to 6 (message me for quote for a bigger family).",
-    details: ["Up to 1 hour of shooting", "1 location", "Multiple group combinations", "150+ edited images", "1–2 week turnaround"],
+    details: [
+      "Up to 1 hour of shooting",
+      "1 location",
+      "Multiple group combinations",
+      "150+ edited images",
+      "1–2 week turnaround",
+    ],
     disclaimer: "Travel fee not included*",
     packages: [],
   },
@@ -69,10 +108,25 @@ export const MISC_PRICING = {
   title: "Misc. Pricing",
   blurb: "Pricing for school dances, friends, game days, etc.",
   items: [
-    { slug: "school-dances", name: "School Dances", price: "$25 per couple", note: "5 couples minimum" },
+    {
+      slug: "school-dances",
+      name: "School Dances",
+      price: "$25 per couple",
+      note: "5 couples minimum",
+    },
     { slug: "friends", name: "Friends", price: "$75 per person", note: "Individual + group shots" },
-    { slug: "game-day", name: "Game Day", price: "$175 per game", note: "Spotlighting player the whole game" },
-    { slug: "missionary", name: "Missionary Homecoming & More!", price: "Varied Pricing", note: "" },
+    {
+      slug: "game-day",
+      name: "Game Day",
+      price: "$175 per game",
+      note: "Spotlighting player the whole game",
+    },
+    {
+      slug: "missionary",
+      name: "Missionary Homecoming & More!",
+      price: "Varied Pricing",
+      note: "",
+    },
   ],
 };
 

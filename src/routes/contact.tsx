@@ -3,17 +3,34 @@ import { Heart, Mail } from "lucide-react";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { PageIntro } from "@/components/site/PageIntro";
 import { SocialLinks } from "@/components/site/SocialLinks";
-import { CONTACT_METHODS, HEARD_ABOUT, INTEREST_LEVELS, MISC_PRICING, SHOOT_TYPES, SITE, upcomingMonths } from "@/lib/site";
+import {
+  CONTACT_METHODS,
+  HEARD_ABOUT,
+  INTEREST_LEVELS,
+  MISC_PRICING,
+  SHOOT_TYPES,
+  SITE,
+  upcomingMonths,
+} from "@/lib/site";
+import { getSiteContentMap } from "@/lib/content.functions";
 
 export const Route = createFileRoute("/contact")({
   validateSearch: (s: Record<string, unknown>): { type?: string } => {
     const t = s["type"];
     return typeof t === "string" ? { type: t } : {};
   },
+  loader: async () => {
+    const content = await getSiteContentMap().catch(() => ({}) as Record<string, unknown>);
+    return { content };
+  },
   head: () => ({
     meta: [
       { title: "Contact & Booking — Kylie's Camera" },
-      { name: "description", content: "Book a portrait, couple, family, wedding, dance, sports, or homecoming session with Kylie's Camera in Utah County." },
+      {
+        name: "description",
+        content:
+          "Book a portrait, couple, family, wedding, dance, sports, or homecoming session with Kylie's Camera in Utah County.",
+      },
       { property: "og:title", content: "Contact & Booking — Kylie's Camera" },
       { property: "og:description", content: "Tell me your vision and let's plan your session." },
       { property: "og:type", content: "website" },
@@ -24,10 +41,13 @@ export const Route = createFileRoute("/contact")({
 });
 
 const MONTHS = upcomingMonths();
-const SHOOT_OPTIONS = [...SHOOT_TYPES.map((t) => t.name), ...MISC_PRICING.items.map((i) => i.name)];
 
 function ContactPage() {
   const { type } = Route.useSearch();
+  const { content } = Route.useLoaderData();
+  const shootTypes = (content["shoot_types"] as typeof SHOOT_TYPES | undefined) ?? SHOOT_TYPES;
+  const miscPricing = (content["misc_pricing"] as typeof MISC_PRICING | undefined) ?? MISC_PRICING;
+  const shootOptions = [...shootTypes.map((t) => t.name), ...miscPricing.items.map((i) => i.name)];
   const [done, setDone] = useState(false);
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -65,8 +85,8 @@ function ContactPage() {
         <h1 className="mt-6 text-5xl">Almost done!</h1>
         <p className="font-script mt-2 text-3xl text-primary">one more click</p>
         <p className="mt-6 leading-relaxed text-muted-foreground">
-          Your email app should have opened with your message ready to go — just hit send. If it didn't
-          open, email me directly at{" "}
+          Your email app should have opened with your message ready to go — just hit send. If it
+          didn't open, email me directly at{" "}
           <a href={`mailto:${SITE.email}`} className="text-primary underline underline-offset-4">
             {SITE.email}
           </a>
@@ -81,8 +101,13 @@ function ContactPage() {
 
   return (
     <>
-      <PageIntro eyebrow="Contact & Booking" title="Let's Craft Memories That Last a Lifetime" script="tell me your vision">
-        Fill out the form below and I'll get back to you within 3 days with availability and next steps.
+      <PageIntro
+        eyebrow="Contact & Booking"
+        title="Let's Craft Memories That Last a Lifetime"
+        script="tell me your vision"
+      >
+        Fill out the form below and I'll get back to you within 3 days with availability and next
+        steps.
       </PageIntro>
 
       <form onSubmit={onSubmit} className="container-site max-w-2xl space-y-10">
@@ -104,7 +129,11 @@ function ContactPage() {
         </Fieldset>
 
         <Fieldset legend="Where are you at?">
-          <RadioGroup name="interest_level" options={INTEREST_LEVELS} defaultValue={INTEREST_LEVELS[0]} />
+          <RadioGroup
+            name="interest_level"
+            options={INTEREST_LEVELS}
+            defaultValue={INTEREST_LEVELS[0]}
+          />
           <Field label="How did you hear about me?">
             <select name="heard_about" className="field" defaultValue="">
               <option value="" disabled>
@@ -124,12 +153,12 @@ function ContactPage() {
                 name="shoot_type"
                 required
                 className="field"
-                defaultValue={SHOOT_TYPES.find((t) => t.slug === type)?.name ?? ""}
+                defaultValue={shootTypes.find((t) => t.slug === type)?.name ?? ""}
               >
                 <option value="" disabled>
                   Choose one
                 </option>
-                {SHOOT_OPTIONS.map((name) => (
+                {shootOptions.map((name) => (
                   <option key={name}>{name}</option>
                 ))}
               </select>
@@ -156,7 +185,12 @@ function ContactPage() {
         </Fieldset>
 
         <Fieldset legend="Email or text?">
-          <RadioGroup name="preferred_contact" options={CONTACT_METHODS} defaultValue="Email" inline />
+          <RadioGroup
+            name="preferred_contact"
+            options={CONTACT_METHODS}
+            defaultValue="Email"
+            inline
+          />
         </Fieldset>
 
         <div className="rounded-lg bg-blush/60 p-6">
@@ -199,7 +233,15 @@ function Fieldset({ legend, children }: { legend: string; children: ReactNode })
   );
 }
 
-function Field({ label, required, children }: { label: string; required?: boolean; children: ReactNode }) {
+function Field({
+  label,
+  required,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: ReactNode;
+}) {
   return (
     <label className="block">
       <span className="mb-1.5 block min-h-4 text-xs uppercase tracking-[0.18em] text-muted-foreground">
@@ -229,7 +271,14 @@ function RadioGroup({
           key={o}
           className="flex cursor-pointer items-center gap-3 rounded-md border border-border bg-card px-4 py-3 text-sm transition-colors has-[:checked]:border-primary has-[:checked]:bg-blush/50"
         >
-          <input type="radio" name={name} value={o} defaultChecked={o === defaultValue} required className="accent-primary" />
+          <input
+            type="radio"
+            name={name}
+            value={o}
+            defaultChecked={o === defaultValue}
+            required
+            className="accent-primary"
+          />
           {o}
         </label>
       ))}

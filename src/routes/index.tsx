@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import { SITE, FUN_FACTS, TESTIMONIALS, SHOOT_TYPES, MISC_PRICING } from "@/lib/site";
+import { SITE, BIO, FUN_FACTS, TESTIMONIALS, SHOOT_TYPES, MISC_PRICING } from "@/lib/site";
 import { SocialLinks } from "@/components/site/SocialLinks";
 import { CATEGORY_IMAGES } from "@/lib/images";
 import { cn } from "@/lib/utils";
+import { getSiteContentMap } from "@/lib/content.functions";
 import heroImg from "@/assets/hero.jpg";
 import portraitImg from "@/assets/portrait.jpg";
 import danceImg from "@/assets/dance.jpg";
@@ -24,10 +25,18 @@ const MISC_STRIP_IMAGES: Record<string, string> = {
 };
 const SHOOT_STRIP = [
   ...SHOOT_TYPES.map((t) => ({ name: t.name, slug: t.slug, image: CATEGORY_IMAGES[t.slug] })),
-  ...MISC_PRICING.items.map((item) => ({ name: item.name, slug: item.slug, image: MISC_STRIP_IMAGES[item.name] })),
+  ...MISC_PRICING.items.map((item) => ({
+    name: item.name,
+    slug: item.slug,
+    image: MISC_STRIP_IMAGES[item.name],
+  })),
 ];
 
 export const Route = createFileRoute("/")({
+  loader: async () => {
+    const content = await getSiteContentMap().catch(() => ({}) as Record<string, unknown>);
+    return { content };
+  },
   head: () => ({
     meta: [
       { title: "Kylie's Camera — Authentic, Heartfelt Photography in Utah County" },
@@ -37,7 +46,10 @@ export const Route = createFileRoute("/")({
           "Warm, candid portrait, couple, family, wedding, dance, and sports photography in Utah County, UT. Capturing moments since 2024.",
       },
       { property: "og:title", content: "Kylie's Camera — Authentic, Heartfelt Photography" },
-      { property: "og:description", content: "Warm, candid photography in Utah County, UT. Capturing moments since 2024." },
+      {
+        property: "og:description",
+        content: "Warm, candid photography in Utah County, UT. Capturing moments since 2024.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -46,6 +58,10 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
+  const { content } = Route.useLoaderData();
+  const bio = (content["bio"] as typeof BIO | undefined) ?? BIO;
+  const funFacts = (content["fun_facts"] as typeof FUN_FACTS | undefined) ?? FUN_FACTS;
+
   return (
     <>
       {/* Hero */}
@@ -89,15 +105,20 @@ function HomePage() {
           />
         </div>
         <div>
-          <p className="eyebrow">Meet the Photographer</p>
-          <h2 className="mt-4 text-4xl md:text-5xl">Hi! I'm Kylie Bond!</h2>
-          <p className="mt-6 leading-relaxed text-muted-foreground">
-            A Portrait & Couples Photographer capturing fun, natural moments. I love taking photos of
-            seniors, couples, weddings, etc. I love anything to do with photography and have been
-            doing photography since my sophomore year of high school. It's been such an incredible
-            journey. I love being able to capture life's little moments.
-          </p>
-          <p className="mt-4 leading-relaxed text-muted-foreground">I can't wait to work with you!</p>
+          <p className="eyebrow">{bio.eyebrow}</p>
+          <h2 className="mt-4 text-4xl md:text-5xl">{bio.header}</h2>
+          {bio.paragraphs.map((p, i) => (
+            <p
+              key={i}
+              className={
+                i === 0
+                  ? "mt-6 leading-relaxed text-muted-foreground"
+                  : "mt-4 leading-relaxed text-muted-foreground"
+              }
+            >
+              {p}
+            </p>
+          ))}
           <Link to="/contact" className="btn-primary mt-8">
             Contact me
           </Link>
@@ -112,7 +133,10 @@ function HomePage() {
               <p className="eyebrow">What I shoot</p>
               <h2 className="mt-3 text-4xl">Sessions for every season of life</h2>
             </div>
-            <Link to="/pricing" className="hidden text-xs uppercase tracking-[0.2em] hover:text-primary md:block">
+            <Link
+              to="/pricing"
+              className="hidden text-xs uppercase tracking-[0.2em] hover:text-primary md:block"
+            >
               Info & pricing →
             </Link>
           </div>
@@ -133,7 +157,9 @@ function HomePage() {
                   className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="hero-overlay absolute inset-0" />
-                <p className="absolute bottom-4 left-4 font-serif text-2xl text-primary-foreground">{s.name}</p>
+                <p className="absolute bottom-4 left-4 font-serif text-2xl text-primary-foreground">
+                  {s.name}
+                </p>
               </Link>
             ))}
           </div>
@@ -148,7 +174,7 @@ function HomePage() {
         </div>
         <div className="mx-auto mt-14 grid max-w-5xl items-center gap-12 md:grid-cols-[1fr_auto_1fr] md:gap-10">
           <ul className="grid gap-10 text-center sm:grid-cols-2 md:grid-cols-1 md:text-right">
-            {FUN_FACTS.slice(0, 3).map((f) => (
+            {funFacts.slice(0, 3).map((f) => (
               <FunFact key={f.title} fact={f} />
             ))}
           </ul>
@@ -164,7 +190,7 @@ function HomePage() {
             />
           </div>
           <ul className="grid gap-10 text-center sm:grid-cols-2 md:grid-cols-1 md:text-left">
-            {FUN_FACTS.slice(3).map((f) => (
+            {funFacts.slice(3).map((f) => (
               <FunFact key={f.title} fact={f} />
             ))}
           </ul>
@@ -189,7 +215,11 @@ function HomePage() {
               >
                 {t.photo && (
                   <>
-                    <img src={t.photo.src} alt={t.photo.alt} className="absolute inset-0 size-full object-cover" />
+                    <img
+                      src={t.photo.src}
+                      alt={t.photo.alt}
+                      className="absolute inset-0 size-full object-cover"
+                    />
                     <div className="absolute inset-0 bg-ink/65" />
                   </>
                 )}
@@ -203,8 +233,12 @@ function HomePage() {
                     "{t.quote}"
                   </blockquote>
                   <figcaption className="mt-6 text-sm">
-                    <span className={cn("font-medium", t.photo && "text-primary-foreground")}>{t.name}</span>
-                    <span className={t.photo ? "text-primary-foreground/75" : "text-muted-foreground"}>
+                    <span className={cn("font-medium", t.photo && "text-primary-foreground")}>
+                      {t.name}
+                    </span>
+                    <span
+                      className={t.photo ? "text-primary-foreground/75" : "text-muted-foreground"}
+                    >
                       {" "}
                       · {t.session}
                     </span>
@@ -235,7 +269,9 @@ function FunFact({ fact }: { fact: { title: string; text: string } }) {
   return (
     <li>
       <h3 className="text-2xl uppercase tracking-wide md:text-3xl">{fact.title}</h3>
-      <p className="mt-2 text-lg uppercase leading-relaxed text-muted-foreground md:text-xl">{fact.text}</p>
+      <p className="mt-2 text-lg uppercase leading-relaxed text-muted-foreground md:text-xl">
+        {fact.text}
+      </p>
     </li>
   );
 }
