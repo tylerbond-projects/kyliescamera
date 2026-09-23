@@ -268,16 +268,19 @@ function TestimonialsCarousel({ testimonials }: { testimonials: typeof TESTIMONI
 
   return (
     <div className="mt-12 overflow-hidden" ref={emblaRef} onMouseEnter={stop} onMouseLeave={start}>
-      {/* Embla clones slides for the loop, and CSS `gap` doesn't measure
-          correctly across that clone boundary -- negative margin + padding
-          on each slide is Embla's own recommended spacing pattern instead,
-          since it stays correct all the way around the loop. */}
-      <div className="-ml-6 flex">
+      {/* Embla's loop-boundary math (measureEndGap in its source) reads the
+          last slide's `margin-right` via getComputedStyle -- it's blind to
+          flex `gap` and to padding, so the space between slides has to be
+          a real trailing margin on each one, or the loop seam breaks. */}
+      <div className="flex">
         {testimonials.map((t) => (
-          <div key={t.name} className="min-w-[85%] shrink-0 pl-6 sm:min-w-[60%] lg:min-w-[33.333%]">
+          <div
+            key={t.name}
+            className="min-w-[85%] shrink-0 mr-6 sm:min-w-[60%] lg:min-w-[calc(33.333%-1.5rem)]"
+          >
             <figure
               className={cn(
-                "relative aspect-[4/5] h-full overflow-hidden rounded-lg p-8 shadow-card",
+                "relative aspect-[8/5] h-full overflow-hidden rounded-lg p-8 shadow-card",
                 !t.photo && "bg-card",
               )}
             >
