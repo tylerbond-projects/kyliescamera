@@ -36,14 +36,14 @@ export function SocialLinks({
     <ul
       className={
         large
-          ? `flex justify-center gap-6 ${nowrap ? "flex-nowrap overflow-x-auto" : "flex-wrap"}`
+          ? `flex justify-center gap-2 sm:gap-6 ${nowrap ? "flex-nowrap" : "flex-wrap"}`
           : "flex gap-3"
       }
     >
       {SITE.socials.map((s) => {
         const Icon = ICONS[s.label as keyof typeof ICONS];
         return (
-          <li key={s.label} className={large && nowrap ? "shrink-0" : undefined}>
+          <li key={s.label} className={large && nowrap ? "min-w-0 flex-1" : undefined}>
             <a
               href={s.href}
               target="_blank"
@@ -51,15 +51,17 @@ export function SocialLinks({
               aria-label={s.label}
               className={
                 large
-                  ? "flex flex-col items-center gap-3 rounded-2xl border border-border bg-card px-8 py-6 text-center shadow-card transition-transform hover:-translate-y-1"
+                  ? "flex flex-col items-center gap-1.5 rounded-2xl border border-border bg-card px-2 py-4 text-center shadow-card transition-transform hover:-translate-y-1 sm:gap-3 sm:px-8 sm:py-6"
                   : "flex size-7 items-center justify-center text-muted-foreground transition-colors hover:text-primary"
               }
             >
-              <Icon className={large ? "size-7 text-primary" : "size-4"} />
+              <Icon className={large ? "size-5 text-primary sm:size-7" : "size-4"} />
               {large && (
                 <>
-                  <span className="font-serif text-xl">{s.label}</span>
-                  <span className="text-xs text-muted-foreground">{s.handle}</span>
+                  <span className="font-serif text-sm leading-tight sm:text-xl">{s.label}</span>
+                  <span className="break-words text-[10px] leading-tight text-muted-foreground sm:text-xs">
+                    {s.handle}
+                  </span>
                 </>
               )}
             </a>

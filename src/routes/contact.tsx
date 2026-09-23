@@ -13,6 +13,7 @@ import {
   upcomingMonths,
 } from "@/lib/site";
 import { getSiteContentMap } from "@/lib/content.functions";
+import { sendContactMessage } from "@/lib/contact.functions";
 
 export const Route = createFileRoute("/contact")({
   validateSearch: (s: Record<string, unknown>): { type?: string } => {
@@ -53,45 +54,44 @@ function ContactPage() {
     "Not Sure",
     "Other",
   ];
-  const [done, setDone] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
-  function onSubmit(e: FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const get = (k: string) => String(fd.get(k) ?? "").trim();
 
-    const body = [
-      `Name: ${get("name")}`,
-      `Email: ${get("email")}`,
-      `Phone number: ${get("phone")}`,
-      `Interest in booking: ${get("interest_level")}`,
-      `How they heard about me: ${get("heard_about")}`,
-      `Desired month: ${get("desired_month")}`,
-      `Shoot type: ${get("shoot_type")}`,
-      `Preferred contact: ${get("preferred_contact")}`,
-      `Socials: ${get("socials") || "—"}`,
-      "",
-      "Vision for the shoot:",
-      get("vision") || "—",
-    ].join("\n");
-
-    const mailto = `mailto:${SITE.email}?subject=${encodeURIComponent(
-      `New booking inquiry from ${get("name")}`,
-    )}&body=${encodeURIComponent(body)}`;
-
-    window.location.href = mailto;
-    setDone(true);
+    setStatus("sending");
+    try {
+      await sendContactMessage({
+        data: {
+          name: get("name"),
+          email: get("email"),
+          phone: get("phone"),
+          interest_level: get("interest_level"),
+          heard_about: get("heard_about"),
+          desired_month: get("desired_month"),
+          shoot_type: get("shoot_type"),
+          preferred_contact: get("preferred_contact"),
+          socials: get("socials"),
+          vision: get("vision"),
+        },
+      });
+      setStatus("sent");
+    } catch {
+      setStatus("error");
+    }
   }
 
-  if (done) {
+  if (status === "sent") {
     return (
       <section className="container-site flex min-h-[70vh] max-w-xl flex-col items-center justify-center text-center">
         <Heart className="size-10 text-primary" />
-        <h1 className="mt-6 text-5xl">Almost done!</h1>
-        <p className="font-script mt-2 text-3xl text-primary">one more click</p>
+        <h1 className="mt-6 text-5xl">Message sent!</h1>
+        <p className="font-script mt-2 text-3xl text-primary">thank you</p>
         <p className="mt-6 leading-relaxed text-muted-foreground">
-          Your email app should have opened with your message ready to go — just hit send. If it
-          didn't open, email me directly at{" "}
+          Your inquiry is on its way — I'll get back to you within 3 days with availability and next
+          steps. If you don't hear back, feel free to email me directly at{" "}
           <a href={`mailto:${SITE.email}`} className="text-primary underline underline-offset-4">
             {SITE.email}
           </a>
@@ -203,9 +203,22 @@ function ContactPage() {
             <input type="checkbox" name="agree" required className="mt-0.5 accent-primary" />
             <span>I agree: If I haven't seen a response in 3 days, I will check my junk mail.</span>
           </label>
-          <button type="submit" className="btn-primary mt-5 w-full sm:w-auto">
-            Send my inquiry
+          <button
+            type="submit"
+            disabled={status === "sending"}
+            className="btn-primary mt-5 w-full disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          >
+            {status === "sending" ? "Sending…" : "Send my inquiry"}
           </button>
+          {status === "error" && (
+            <p className="mt-4 text-sm text-destructive">
+              Something went wrong sending your message. Please try again, or email me directly at{" "}
+              <a href={`mailto:${SITE.email}`} className="underline underline-offset-4">
+                {SITE.email}
+              </a>
+              .
+            </p>
+          )}
         </div>
       </form>
 
