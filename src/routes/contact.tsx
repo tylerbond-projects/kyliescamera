@@ -47,7 +47,12 @@ function ContactPage() {
   const { content } = Route.useLoaderData();
   const shootTypes = (content["shoot_types"] as typeof SHOOT_TYPES | undefined) ?? SHOOT_TYPES;
   const miscPricing = (content["misc_pricing"] as typeof MISC_PRICING | undefined) ?? MISC_PRICING;
-  const shootOptions = [...shootTypes.map((t) => t.name), ...miscPricing.items.map((i) => i.name)];
+  const shootOptions = [
+    ...shootTypes.map((t) => t.name),
+    ...miscPricing.items.map((i) => i.name),
+    "Not Sure",
+    "Other",
+  ];
   const [done, setDone] = useState(false);
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -196,7 +201,7 @@ function ContactPage() {
         <div className="rounded-lg bg-blush/60 p-6">
           <label className="flex cursor-pointer items-start gap-3 text-sm">
             <input type="checkbox" name="agree" required className="mt-0.5 accent-primary" />
-            <span>I agree: if I haven't seen a response in 3 days, I will check my junk mail.</span>
+            <span>I agree: If I haven't seen a response in 3 days, I will check my junk mail.</span>
           </label>
           <button type="submit" className="btn-primary mt-5 w-full sm:w-auto">
             Send my inquiry

@@ -27,9 +27,14 @@ export const Route = createFileRoute("/pricing")({
   component: PricingPage,
 });
 
+// Admin-uploaded photo, additive on top of the `as const` default shape --
+// see the matching note in /admin/content.tsx.
+type ShootTypeWithImage = (typeof SHOOT_TYPES)[number] & { image?: string };
+
 function PricingPage() {
   const { content } = Route.useLoaderData();
-  const shootTypes = (content["shoot_types"] as typeof SHOOT_TYPES | undefined) ?? SHOOT_TYPES;
+  const shootTypes: readonly ShootTypeWithImage[] =
+    (content["shoot_types"] as ShootTypeWithImage[] | undefined) ?? SHOOT_TYPES;
   const miscPricing = (content["misc_pricing"] as typeof MISC_PRICING | undefined) ?? MISC_PRICING;
 
   return (
@@ -76,7 +81,7 @@ function PricingPage() {
                 className={`absolute -inset-3 rounded-lg bg-blush ${i % 2 ? "rotate-2" : "-rotate-2"}`}
               />
               <img
-                src={CATEGORY_IMAGES[t.slug as ShootSlug]}
+                src={t.image || CATEGORY_IMAGES[t.slug as ShootSlug]}
                 alt={t.name}
                 width={1024}
                 height={1280}

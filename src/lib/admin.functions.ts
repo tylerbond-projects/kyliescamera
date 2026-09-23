@@ -108,6 +108,33 @@ export const uploadTestimonialPhoto = createServerFn({ method: "POST" })
     return { url: `${GALLERY_PUBLIC_URL_BASE}/${key}` };
   });
 
+// Generic single-photo upload for the various standalone site images (hero,
+// bio, fun facts, per-session) edited on /admin/content -- unlike gallery
+// photos, these don't get a database row of their own; the returned URL is
+// stored directly in the relevant site_content section.
+export const uploadSiteImage = createServerFn({ method: "POST" })
+  .validator((data: unknown) => {
+    if (!(data instanceof FormData)) throw new Error("Expected FormData");
+    const prefix = String(data.get("prefix") ?? "").replace(/[^a-zA-Z0-9-]/g, "-");
+    if (!prefix) throw new Error("Missing prefix.");
+    const file = data.get("file");
+    if (!(file instanceof File)) throw new Error("Missing file.");
+    return { prefix, file };
+  })
+  .handler(async ({ data }) => {
+    const { requireAdmin } = await import("@/lib/admin-session.server");
+    await requireAdmin();
+    const { getCloudflareEnv } = await import("@/lib/cloudflare.server");
+    const env = getCloudflareEnv();
+    const safeName = data.file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+    const key = `site/${data.prefix}/${Date.now()}-${safeName}`;
+    const bytes = await data.file.arrayBuffer();
+    await env.GALLERY_BUCKET.put(key, bytes, {
+      httpMetadata: { contentType: data.file.type || "application/octet-stream" },
+    });
+    return { url: `${GALLERY_PUBLIC_URL_BASE}/${key}` };
+  });
+
 export const deleteGalleryPhoto = createServerFn({ method: "POST" })
   .validator((data: unknown) => z.object({ id: z.number(), url: z.string().min(1) }).parse(data))
   .handler(async ({ data }) => {

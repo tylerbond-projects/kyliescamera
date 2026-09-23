@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { SITE, BIO, FUN_FACTS, TESTIMONIALS, SHOOT_TYPES, MISC_PRICING } from "@/lib/site";
+import { SITE, HERO, BIO, FUN_FACTS, TESTIMONIALS, SHOOT_TYPES, MISC_PRICING } from "@/lib/site";
 import { SocialLinks } from "@/components/site/SocialLinks";
 import { CATEGORY_IMAGES } from "@/lib/images";
 import { cn } from "@/lib/utils";
@@ -18,21 +18,18 @@ import familyImg from "@/assets/family.jpg";
 const funFactsImg = portraitImg;
 
 // The four full sessions plus the four Misc. Pricing items — misc items
-// don't have gallery photos yet, so these reuse the closest category shot.
+// don't have gallery photos yet, so these reuse the closest category shot
+// unless the admin has set one directly on the session.
 const MISC_STRIP_IMAGES: Record<string, string> = {
   "School Dances": danceImg,
   Friends: familyImg,
   "Game Day": sportsImg,
-  "Missionary Homecoming & More!": missionaryImg,
+  "Missionary Homecoming": missionaryImg,
 };
-const SHOOT_STRIP = [
-  ...SHOOT_TYPES.map((t) => ({ name: t.name, slug: t.slug, image: CATEGORY_IMAGES[t.slug] })),
-  ...MISC_PRICING.items.map((item) => ({
-    name: item.name,
-    slug: item.slug,
-    image: MISC_STRIP_IMAGES[item.name],
-  })),
-];
+
+// Admin-uploaded photo, additive on top of the `as const` default shape --
+// see the matching note in /admin/content.tsx.
+type ShootTypeWithImage = (typeof SHOOT_TYPES)[number] & { image?: string };
 
 export const Route = createFileRoute("/")({
   loader: async () => {
@@ -61,16 +58,37 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const { content } = Route.useLoaderData();
+  const hero = (content["hero"] as { heading?: string; image?: string } | undefined) ?? {};
+  const heroHeading = hero.heading || HERO.heading;
+  const heroImage = hero.image || heroImg;
+  const images = (content["images"] as { bio?: string; funFacts?: string } | undefined) ?? {};
+  const bioImage = images.bio || portraitImg;
+  const funFactsImage = images.funFacts || funFactsImg;
   const bio = (content["bio"] as typeof BIO | undefined) ?? BIO;
   const funFacts = (content["fun_facts"] as typeof FUN_FACTS | undefined) ?? FUN_FACTS;
   const testimonials = (content["testimonials"] as typeof TESTIMONIALS | undefined) ?? TESTIMONIALS;
+  const shootTypes: readonly ShootTypeWithImage[] =
+    (content["shoot_types"] as ShootTypeWithImage[] | undefined) ?? SHOOT_TYPES;
+  const miscPricing = (content["misc_pricing"] as typeof MISC_PRICING | undefined) ?? MISC_PRICING;
+  const shootStrip = [
+    ...shootTypes.map((t) => ({
+      name: t.name,
+      slug: t.slug,
+      image: t.image || CATEGORY_IMAGES[t.slug],
+    })),
+    ...miscPricing.items.map((item) => ({
+      name: item.name,
+      slug: item.slug,
+      image: MISC_STRIP_IMAGES[item.name],
+    })),
+  ];
 
   return (
     <>
       {/* Hero */}
       <section className="relative flex min-h-[88vh] items-end overflow-hidden">
         <img
-          src={heroImg}
+          src={heroImage}
           alt="Couple embracing in a golden field at sunset"
           width={1920}
           height={1152}
@@ -80,7 +98,7 @@ function HomePage() {
         <div className="container-site relative pb-20 text-primary-foreground md:pb-28">
           <p className="eyebrow text-primary-foreground/80 animate-fade-up">{SITE.location}</p>
           <h1 className="mt-4 max-w-3xl text-5xl leading-[1.05] animate-fade-up md:text-7xl">
-            Authentic, Heartfelt <em className="font-normal italic">Photography.</em>
+            {heroHeading}
           </h1>
           <p className="font-script mt-4 text-3xl animate-fade-up md:text-4xl">{SITE.tagline}</p>
           <div className="mt-8 flex flex-wrap gap-3 animate-fade-up">
@@ -99,7 +117,7 @@ function HomePage() {
         <div className="relative mx-auto w-full max-w-md">
           <div className="absolute -inset-3 -rotate-2 rounded-lg bg-blush" />
           <img
-            src={portraitImg}
+            src={bioImage}
             alt="Kylie laughing outdoors"
             width={1024}
             height={1280}
@@ -144,7 +162,7 @@ function HomePage() {
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {SHOOT_STRIP.map((s) => (
+            {shootStrip.map((s) => (
               <Link
                 key={s.name}
                 to="/pricing"
@@ -184,7 +202,7 @@ function HomePage() {
           <div className="relative order-first mx-auto w-64 shrink-0 sm:w-72 md:order-none md:w-80 lg:w-96">
             <div className="absolute -inset-3 rotate-2 rounded-lg bg-blush" />
             <img
-              src={funFactsImg}
+              src={funFactsImage}
               alt="Kylie"
               width={600}
               height={900}

@@ -31,6 +31,10 @@ export const SITE = {
   ],
 };
 
+export const HERO = {
+  heading: "Authentic, Heartfelt Photography.",
+};
+
 export const BIO = {
   eyebrow: "Meet the Photographer",
   header: "Hi! I'm Kylie Bond!",
@@ -125,7 +129,7 @@ export const MISC_PRICING = {
     },
     {
       slug: "missionary",
-      name: "Missionary Homecoming & More!",
+      name: "Missionary Homecoming",
       price: "Varied Pricing",
       note: "",
     },

@@ -2,9 +2,14 @@ import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-ro
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState, type ChangeEvent, type ReactNode } from "react";
 import { PageIntro } from "@/components/site/PageIntro";
-import { adminLogout, getAdminStatus, uploadTestimonialPhoto } from "@/lib/admin.functions";
+import {
+  adminLogout,
+  getAdminStatus,
+  uploadSiteImage,
+  uploadTestimonialPhoto,
+} from "@/lib/admin.functions";
 import { getSiteContentMap, updateSiteContentSection } from "@/lib/content.functions";
-import { BIO, FUN_FACTS, FAQS, SHOOT_TYPES, MISC_PRICING, TESTIMONIALS } from "@/lib/site";
+import { HERO, BIO, FUN_FACTS, FAQS, SHOOT_TYPES, MISC_PRICING, TESTIMONIALS } from "@/lib/site";
 
 export const Route = createFileRoute("/admin/content")({
   beforeLoad: async () => {
@@ -21,6 +26,8 @@ export const Route = createFileRoute("/admin/content")({
 });
 
 // -- Editable shapes (mutable versions of the `as const` shapes in site.ts) --
+type Hero = { heading: string; image?: string | undefined };
+type SiteImages = { bio?: string | undefined; funFacts?: string | undefined };
 type Bio = { eyebrow: string; header: string; paragraphs: string[] };
 type FunFact = { title: string; text: string };
 type Faq = { q: string; a: string };
@@ -33,6 +40,7 @@ type ShootType = {
   details: string[];
   disclaimer: string;
   packages: ShootPackage[];
+  image?: string | undefined;
 };
 type MiscItem = { slug: string; name: string; price: string; note: string };
 type MiscPricing = { title: string; blurb: string; items: MiscItem[] };
@@ -44,6 +52,8 @@ type Testimonial = {
   photo?: TestimonialPhoto | undefined;
 };
 
+const DEFAULT_HERO: Hero = { heading: HERO.heading };
+const DEFAULT_SITE_IMAGES: SiteImages = {};
 const DEFAULT_SHOOT_TYPES: ShootType[] = SHOOT_TYPES.map((t) => ({
   slug: t.slug,
   name: t.name,
@@ -69,19 +79,25 @@ function AdminContentPage() {
   const navigate = useNavigate();
   const getContentMap = useServerFn(getSiteContentMap);
   const saveSection = useServerFn(updateSiteContentSection);
+  const uploadImage = useServerFn(uploadSiteImage);
   const logout = useServerFn(adminLogout);
 
   const [loaded, setLoaded] = useState(false);
+  const [hero, setHero] = useState<Hero>(DEFAULT_HERO);
+  const [siteImages, setSiteImages] = useState<SiteImages>(DEFAULT_SITE_IMAGES);
   const [bio, setBio] = useState<Bio>(BIO);
   const [funFacts, setFunFacts] = useState<FunFact[]>(FUN_FACTS.map((f) => ({ ...f })));
   const [faqs, setFaqs] = useState<Faq[]>(FAQS.map((f) => ({ ...f })));
   const [shootTypes, setShootTypes] = useState<ShootType[]>(DEFAULT_SHOOT_TYPES);
   const [miscPricing, setMiscPricing] = useState<MiscPricing>(DEFAULT_MISC_PRICING);
   const [testimonials, setTestimonials] = useState<Testimonial[]>(DEFAULT_TESTIMONIALS);
+  const [uploadingKey, setUploadingKey] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
       const content = await getContentMap();
+      if (content["hero"]) setHero(content["hero"] as Hero);
+      if (content["images"]) setSiteImages(content["images"] as SiteImages);
       if (content["bio"]) setBio(content["bio"] as Bio);
       if (content["fun_facts"]) setFunFacts(content["fun_facts"] as FunFact[]);
       if (content["faqs"]) setFaqs(content["faqs"] as Faq[]);
@@ -95,6 +111,19 @@ function AdminContentPage() {
   async function signOut() {
     await logout();
     navigate({ to: "/admin/login" });
+  }
+
+  async function uploadPhoto(key: string, file: File, onDone: (url: string) => void) {
+    setUploadingKey(key);
+    try {
+      const fd = new FormData();
+      fd.set("prefix", key);
+      fd.set("file", file);
+      const { url } = await uploadImage({ data: fd });
+      onDone(url);
+    } finally {
+      setUploadingKey(null);
+    }
   }
 
   if (!loaded) {
@@ -128,6 +157,52 @@ function AdminContentPage() {
       </div>
 
       <div className="container-site max-w-3xl space-y-20 pb-24">
+        <SectionEditor title="Hero" section="hero" data={hero} save={saveSection}>
+          <Field
+            label="Main heading"
+            value={hero.heading}
+            multiline
+            onChange={(v) => setHero({ ...hero, heading: v })}
+          />
+          <PhotoField
+            label="Main page photo"
+            url={hero.image}
+            uploading={uploadingKey === "hero"}
+            onUpload={(file) =>
+              uploadPhoto("hero", file, (url) => setHero({ ...hero, image: url }))
+            }
+            onRemove={() => setHero({ ...hero, image: undefined })}
+          />
+        </SectionEditor>
+
+        <SectionEditor
+          title="Homepage Photos"
+          section="images"
+          data={siteImages}
+          save={saveSection}
+        >
+          <PhotoField
+            label="Bio photo"
+            url={siteImages.bio}
+            uploading={uploadingKey === "bio"}
+            onUpload={(file) =>
+              uploadPhoto("bio", file, (url) => setSiteImages({ ...siteImages, bio: url }))
+            }
+            onRemove={() => setSiteImages({ ...siteImages, bio: undefined })}
+          />
+          <PhotoField
+            label="Fun facts photo"
+            url={siteImages.funFacts}
+            uploading={uploadingKey === "fun-facts"}
+            onUpload={(file) =>
+              uploadPhoto("fun-facts", file, (url) =>
+                setSiteImages({ ...siteImages, funFacts: url }),
+              )
+            }
+            onRemove={() => setSiteImages({ ...siteImages, funFacts: undefined })}
+          />
+        </SectionEditor>
+
         <SectionEditor title="Bio" section="bio" data={bio} save={saveSection}>
           <Field
             label="Eyebrow"
@@ -217,7 +292,18 @@ function AdminContentPage() {
             {shootTypes.map((t, i) => (
               <div key={t.slug} className="rounded-lg border border-border p-5">
                 <p className="eyebrow mb-4">{t.slug}</p>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <PhotoField
+                  label="Session photo"
+                  url={t.image}
+                  uploading={uploadingKey === `session-${t.slug}`}
+                  onUpload={(file) =>
+                    uploadPhoto(`session-${t.slug}`, file, (url) =>
+                      updateShootType(i, { image: url }),
+                    )
+                  }
+                  onRemove={() => updateShootType(i, { image: undefined })}
+                />
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   <Field
                     label="Name"
                     value={t.name}
@@ -378,6 +464,54 @@ function Field({
         <input className="field" value={value} onChange={(e) => onChange(e.target.value)} />
       )}
     </label>
+  );
+}
+
+function PhotoField({
+  label,
+  url,
+  uploading,
+  onUpload,
+  onRemove,
+}: {
+  label: string;
+  url?: string | undefined;
+  uploading: boolean;
+  onUpload: (file: File) => void;
+  onRemove: () => void;
+}) {
+  return (
+    <div>
+      <p className="mb-1.5 block text-xs uppercase tracking-[0.18em] text-muted-foreground">
+        {label}
+      </p>
+      <div className="flex flex-wrap items-center gap-4">
+        {url && <img src={url} alt="" className="size-20 rounded-md object-cover" />}
+        <label className="btn-outline cursor-pointer text-xs">
+          {uploading ? "Uploading…" : url ? "Replace photo" : "Upload photo"}
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            disabled={uploading}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              const file = e.target.files?.[0];
+              e.target.value = "";
+              if (file) onUpload(file);
+            }}
+          />
+        </label>
+        {url && (
+          <button
+            type="button"
+            onClick={onRemove}
+            className="text-xs uppercase tracking-[0.18em] text-destructive hover:underline"
+          >
+            Remove photo
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
 
