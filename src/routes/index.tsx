@@ -273,7 +273,7 @@ function TestimonialsCarousel({ testimonials }: { testimonials: typeof TESTIMONI
           <figure
             key={t.name}
             className={cn(
-              "relative min-w-[85%] shrink-0 overflow-hidden rounded-lg p-8 shadow-card sm:min-w-[60%] lg:min-w-[calc(33.333%-1.5rem)]",
+              "relative aspect-[4/5] min-w-[85%] shrink-0 overflow-hidden rounded-lg p-8 shadow-card sm:min-w-[60%] lg:min-w-[calc(33.333%-1.5rem)]",
               !t.photo && "bg-card",
             )}
           >
@@ -287,10 +287,10 @@ function TestimonialsCarousel({ testimonials }: { testimonials: typeof TESTIMONI
                 <div className="absolute inset-0 bg-ink/65" />
               </>
             )}
-            <div className="relative">
+            <div className="relative flex h-full flex-col justify-center">
               <blockquote
                 className={cn(
-                  "mt-4 font-serif text-xl leading-relaxed italic",
+                  "font-serif text-xl leading-relaxed italic",
                   t.photo && "text-primary-foreground",
                 )}
               >
