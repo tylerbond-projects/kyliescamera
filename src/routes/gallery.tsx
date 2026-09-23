@@ -3,15 +3,12 @@ import { useMemo, useState } from "react";
 import { PageIntro } from "@/components/site/PageIntro";
 import { SHOOT_TYPES, MISC_PRICING } from "@/lib/site";
 import { CATEGORY_IMAGES } from "@/lib/images";
-import { supabase } from "@/integrations/supabase/client";
+import { listGalleryPhotos } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/gallery")({
   loader: async () => {
-    const { data } = await supabase
-      .from("gallery_photos")
-      .select("id, category, url, caption")
-      .order("sort_order", { ascending: true });
-    return { dbPhotos: data ?? [] };
+    const dbPhotos = await listGalleryPhotos().catch(() => []);
+    return { dbPhotos };
   },
   head: () => ({
     meta: [
@@ -47,7 +44,7 @@ function GalleryPage() {
     return CATEGORIES.flatMap((cat) => {
       const real = dbPhotos.filter((p) => p.category === cat.slug);
       if (real.length > 0) {
-        return real.map((p) => ({ id: p.id, slug: cat.slug, name: cat.name, src: p.url }));
+        return real.map((p) => ({ id: String(p.id), slug: cat.slug, name: cat.name, src: p.url }));
       }
       if (!cat.placeholder) return [];
       return [0, 1, 2].map((n) => ({

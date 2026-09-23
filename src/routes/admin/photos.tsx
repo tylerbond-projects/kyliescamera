@@ -3,13 +3,13 @@ import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useState, type ChangeEvent } from "react";
 import { Trash2, Upload } from "lucide-react";
 import { PageIntro } from "@/components/site/PageIntro";
-import { supabase } from "@/integrations/supabase/client";
 import {
   adminLogout,
-  createGalleryUploadUrl,
   deleteGalleryPhoto,
   getAdminStatus,
-  recordGalleryPhoto,
+  listGalleryPhotos,
+  uploadGalleryPhoto,
+  type GalleryPhotoRow,
 } from "@/lib/admin.functions";
 import { SHOOT_TYPES, MISC_PRICING } from "@/lib/site";
 
@@ -32,30 +32,24 @@ const CATEGORIES = [
   ...MISC_PRICING.items.map((i) => ({ slug: i.slug, name: i.name })),
 ];
 
-type GalleryPhoto = { id: string; category: string; url: string; caption: string | null };
-
 function AdminPhotosPage() {
   const navigate = useNavigate();
-  const createUploadUrl = useServerFn(createGalleryUploadUrl);
-  const recordPhoto = useServerFn(recordGalleryPhoto);
+  const listPhotos = useServerFn(listGalleryPhotos);
+  const uploadPhoto = useServerFn(uploadGalleryPhoto);
   const deletePhoto = useServerFn(deleteGalleryPhoto);
   const logout = useServerFn(adminLogout);
 
-  const [photos, setPhotos] = useState<GalleryPhoto[] | null>(null);
+  const [photos, setPhotos] = useState<GalleryPhotoRow[] | null>(null);
   const [uploading, setUploading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const loadPhotos = useCallback(async () => {
-    const { data, error: fetchError } = await supabase
-      .from("gallery_photos")
-      .select("id, category, url, caption")
-      .order("sort_order", { ascending: true });
-    if (fetchError) {
-      setError(fetchError.message);
-      return;
+    try {
+      setPhotos(await listPhotos());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load photos.");
     }
-    setPhotos(data ?? []);
-  }, []);
+  }, [listPhotos]);
 
   useEffect(() => {
     loadPhotos();
@@ -68,12 +62,10 @@ function AdminPhotosPage() {
     setError(null);
     setUploading(category);
     try {
-      const { path, token } = await createUploadUrl({ data: { category, filename: file.name } });
-      const { error: uploadError } = await supabase.storage
-        .from("gallery")
-        .uploadToSignedUrl(path, token, file);
-      if (uploadError) throw uploadError;
-      await recordPhoto({ data: { category, path } });
+      const fd = new FormData();
+      fd.set("category", category);
+      fd.set("file", file);
+      await uploadPhoto({ data: fd });
       await loadPhotos();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed. Please try again.");
@@ -82,7 +74,7 @@ function AdminPhotosPage() {
     }
   }
 
-  async function onDelete(photo: GalleryPhoto) {
+  async function onDelete(photo: GalleryPhotoRow) {
     if (!confirm("Delete this photo?")) return;
     setError(null);
     try {

@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { useSession } from "@tanstack/react-start/server";
+import { useSession, getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 // The admin gate doesn't use Supabase Auth (its email provider is disabled
@@ -42,7 +42,7 @@ async function requireAdmin() {
 }
 
 export const adminLogin = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => z.object({ password: z.string().min(1) }).parse(data))
+  .validator((data: unknown) => z.object({ password: z.string().min(1) }).parse(data))
   .handler(async ({ data }) => {
     const adminPassword = process.env["ADMIN_PASSWORD"];
     if (!adminPassword) throw new Error("Admin login isn't configured yet.");
@@ -64,53 +64,105 @@ export const getAdminStatus = createServerFn({ method: "GET" }).handler(async ()
   return { isAdmin: session.data.admin === true };
 });
 
+// --- Cloudflare bindings (R2 + D1) -----------------------------------------
+// Set by the cloudflare-module Nitro preset on every request (see
+// _module-handler.mjs in the `nitro` package). Bindings are the same static
+// configuration on every invocation, so a shared global is safe here even
+// under concurrent requests.
+type CloudflareEnv = {
+  DB: {
+    prepare: (sql: string) => {
+      bind: (...args: unknown[]) => {
+        run: () => Promise<unknown>;
+        all: <T = unknown>() => Promise<{ results: T[] }>;
+        first: <T = unknown>() => Promise<T | null>;
+      };
+    };
+  };
+  GALLERY_BUCKET: {
+    put: (
+      key: string,
+      value: ArrayBuffer,
+      options?: { httpMetadata?: { contentType?: string } },
+    ) => Promise<unknown>;
+    delete: (key: string) => Promise<void>;
+  };
+};
+
+function getCloudflareEnv(): CloudflareEnv {
+  const globalEnv = (globalThis as { __env__?: CloudflareEnv }).__env__;
+  const requestEnv = (
+    getRequest() as unknown as { runtime?: { cloudflare?: { env?: CloudflareEnv } } }
+  ).runtime?.cloudflare?.env;
+  const env = requestEnv ?? globalEnv;
+  if (!env?.DB || !env?.GALLERY_BUCKET) {
+    throw new Error(
+      "Cloudflare bindings (DB, GALLERY_BUCKET) aren't available in this environment.",
+    );
+  }
+  return env;
+}
+
+const GALLERY_PUBLIC_URL_BASE = "https://pub-e2b6b4f7c151426f98b88d2c72fd9dac.r2.dev";
 const categorySchema = z.string().min(1).max(60);
 
-export const createGalleryUploadUrl = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) =>
-    z.object({ category: categorySchema, filename: z.string().min(1) }).parse(data),
-  )
-  .handler(async ({ data }) => {
-    await requireAdmin();
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const safeName = data.filename.replace(/[^a-zA-Z0-9._-]/g, "-");
-    const path = `${data.category}/${Date.now()}-${safeName}`;
-    const { data: signed, error } = await supabaseAdmin.storage
-      .from("gallery")
-      .createSignedUploadUrl(path);
-    if (error) throw new Error(error.message);
-    return { path: signed.path, token: signed.token };
-  });
+export type GalleryPhotoRow = {
+  id: number;
+  category: string;
+  url: string;
+  caption: string | null;
+  sort_order: number;
+};
 
-export const recordGalleryPhoto = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) =>
-    z.object({ category: categorySchema, path: z.string().min(1) }).parse(data),
+export const listGalleryPhotos = createServerFn({ method: "GET" }).handler(async () => {
+  const env = getCloudflareEnv();
+  const { results } = await env.DB.prepare(
+    "SELECT id, category, url, caption, sort_order FROM gallery_photos ORDER BY category, sort_order ASC",
   )
+    .bind()
+    .all<GalleryPhotoRow>();
+  return results;
+});
+
+export const uploadGalleryPhoto = createServerFn({ method: "POST" })
+  .validator((data: unknown) => {
+    if (!(data instanceof FormData)) throw new Error("Expected FormData");
+    const category = categorySchema.parse(data.get("category"));
+    const file = data.get("file");
+    if (!(file instanceof File)) throw new Error("Missing file.");
+    return { category, file };
+  })
   .handler(async ({ data }) => {
     await requireAdmin();
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: publicUrl } = supabaseAdmin.storage.from("gallery").getPublicUrl(data.path);
-    const { count } = await supabaseAdmin
-      .from("gallery_photos")
-      .select("id", { count: "exact", head: true })
-      .eq("category", data.category);
-    const { error } = await supabaseAdmin
-      .from("gallery_photos")
-      .insert({ category: data.category, url: publicUrl.publicUrl, sort_order: count ?? 0 });
-    if (error) throw new Error(error.message);
+    const env = getCloudflareEnv();
+    const safeName = data.file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+    const key = `${data.category}/${Date.now()}-${safeName}`;
+    const bytes = await data.file.arrayBuffer();
+    await env.GALLERY_BUCKET.put(key, bytes, {
+      httpMetadata: { contentType: data.file.type || "application/octet-stream" },
+    });
+    const url = `${GALLERY_PUBLIC_URL_BASE}/${key}`;
+    const { results: countRows } = await env.DB.prepare(
+      "SELECT COUNT(*) as n FROM gallery_photos WHERE category = ?1",
+    )
+      .bind(data.category)
+      .all<{ n: number }>();
+    const sortOrder = countRows[0]?.n ?? 0;
+    await env.DB.prepare(
+      "INSERT INTO gallery_photos (category, url, sort_order) VALUES (?1, ?2, ?3)",
+    )
+      .bind(data.category, url, sortOrder)
+      .run();
     return { ok: true as const };
   });
 
 export const deleteGalleryPhoto = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) =>
-    z.object({ id: z.string().min(1), url: z.string().min(1) }).parse(data),
-  )
+  .validator((data: unknown) => z.object({ id: z.number(), url: z.string().min(1) }).parse(data))
   .handler(async ({ data }) => {
     await requireAdmin();
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("gallery_photos").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
-    const path = data.url.split("/gallery/")[1];
-    if (path) await supabaseAdmin.storage.from("gallery").remove([path]);
+    const env = getCloudflareEnv();
+    await env.DB.prepare("DELETE FROM gallery_photos WHERE id = ?1").bind(data.id).run();
+    const key = data.url.split(`${GALLERY_PUBLIC_URL_BASE}/`)[1];
+    if (key) await env.GALLERY_BUCKET.delete(key);
     return { ok: true as const };
   });
