@@ -1,10 +1,10 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type ChangeEvent, type ReactNode } from "react";
 import { PageIntro } from "@/components/site/PageIntro";
-import { getAdminStatus } from "@/lib/admin.functions";
+import { adminLogout, getAdminStatus, uploadTestimonialPhoto } from "@/lib/admin.functions";
 import { getSiteContentMap, updateSiteContentSection } from "@/lib/content.functions";
-import { BIO, FUN_FACTS, FAQS, SHOOT_TYPES, MISC_PRICING } from "@/lib/site";
+import { BIO, FUN_FACTS, FAQS, SHOOT_TYPES, MISC_PRICING, TESTIMONIALS } from "@/lib/site";
 
 export const Route = createFileRoute("/admin/content")({
   beforeLoad: async () => {
@@ -36,6 +36,13 @@ type ShootType = {
 };
 type MiscItem = { slug: string; name: string; price: string; note: string };
 type MiscPricing = { title: string; blurb: string; items: MiscItem[] };
+type TestimonialPhoto = { src: string; alt: string };
+type Testimonial = {
+  name: string;
+  session: string;
+  quote: string;
+  photo?: TestimonialPhoto | undefined;
+};
 
 const DEFAULT_SHOOT_TYPES: ShootType[] = SHOOT_TYPES.map((t) => ({
   slug: t.slug,
@@ -51,10 +58,18 @@ const DEFAULT_MISC_PRICING: MiscPricing = {
   blurb: MISC_PRICING.blurb,
   items: MISC_PRICING.items.map((i) => ({ ...i })),
 };
+const DEFAULT_TESTIMONIALS: Testimonial[] = TESTIMONIALS.map((t) => ({
+  name: t.name,
+  session: t.session,
+  quote: t.quote,
+  photo: t.photo ? { src: t.photo.src, alt: t.photo.alt } : undefined,
+}));
 
 function AdminContentPage() {
+  const navigate = useNavigate();
   const getContentMap = useServerFn(getSiteContentMap);
   const saveSection = useServerFn(updateSiteContentSection);
+  const logout = useServerFn(adminLogout);
 
   const [loaded, setLoaded] = useState(false);
   const [bio, setBio] = useState<Bio>(BIO);
@@ -62,6 +77,7 @@ function AdminContentPage() {
   const [faqs, setFaqs] = useState<Faq[]>(FAQS.map((f) => ({ ...f })));
   const [shootTypes, setShootTypes] = useState<ShootType[]>(DEFAULT_SHOOT_TYPES);
   const [miscPricing, setMiscPricing] = useState<MiscPricing>(DEFAULT_MISC_PRICING);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(DEFAULT_TESTIMONIALS);
 
   useEffect(() => {
     (async () => {
@@ -71,9 +87,15 @@ function AdminContentPage() {
       if (content["faqs"]) setFaqs(content["faqs"] as Faq[]);
       if (content["shoot_types"]) setShootTypes(content["shoot_types"] as ShootType[]);
       if (content["misc_pricing"]) setMiscPricing(content["misc_pricing"] as MiscPricing);
+      if (content["testimonials"]) setTestimonials(content["testimonials"] as Testimonial[]);
       setLoaded(true);
     })();
   }, [getContentMap]);
+
+  async function signOut() {
+    await logout();
+    navigate({ to: "/admin/login" });
+  }
 
   if (!loaded) {
     return (
@@ -88,6 +110,22 @@ function AdminContentPage() {
       <PageIntro eyebrow="Admin" title="Edit Site Content">
         Changes save per section — text you edit here goes live right away, no deploy needed.
       </PageIntro>
+
+      <div className="container-site flex items-center justify-center gap-6">
+        <Link
+          to="/admin"
+          className="text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground"
+        >
+          ← Back to admin
+        </Link>
+        <button
+          type="button"
+          onClick={signOut}
+          className="text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground"
+        >
+          Sign out
+        </button>
+      </div>
 
       <div className="container-site max-w-3xl space-y-20 pb-24">
         <SectionEditor title="Bio" section="bio" data={bio} save={saveSection}>
@@ -158,6 +196,15 @@ function AdminContentPage() {
             emptyItem={{ q: "", a: "" }}
             addLabel="Add question"
           />
+        </SectionEditor>
+
+        <SectionEditor
+          title="Testimonials"
+          section="testimonials"
+          data={testimonials}
+          save={saveSection}
+        >
+          <TestimonialsEditor items={testimonials} onChange={setTestimonials} />
         </SectionEditor>
 
         <SectionEditor
@@ -425,6 +472,101 @@ function ObjectListEditor<T extends Record<string, string>>({
         className="btn-outline text-xs"
       >
         {addLabel}
+      </button>
+    </div>
+  );
+}
+
+function TestimonialsEditor({
+  items,
+  onChange,
+}: {
+  items: Testimonial[];
+  onChange: (items: Testimonial[]) => void;
+}) {
+  const uploadPhoto = useServerFn(uploadTestimonialPhoto);
+  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
+
+  function updateItem(i: number, patch: Partial<Testimonial>) {
+    onChange(items.map((t, idx) => (idx === i ? { ...t, ...patch } : t)));
+  }
+
+  function removePhoto(i: number) {
+    updateItem(i, { photo: undefined });
+  }
+
+  async function onPhotoChange(i: number, e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploadingIndex(i);
+    try {
+      const fd = new FormData();
+      fd.set("file", file);
+      const { url } = await uploadPhoto({ data: fd });
+      updateItem(i, { photo: { src: url, alt: items[i]?.name || "Testimonial photo" } });
+    } finally {
+      setUploadingIndex(null);
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      {items.map((t, i) => (
+        <div key={i} className="space-y-3 rounded-md border border-border p-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label="Name" value={t.name} onChange={(v) => updateItem(i, { name: v })} />
+            <Field
+              label="Session"
+              value={t.session}
+              onChange={(v) => updateItem(i, { session: v })}
+            />
+          </div>
+          <Field
+            label="Quote"
+            value={t.quote}
+            multiline
+            onChange={(v) => updateItem(i, { quote: v })}
+          />
+          <div className="flex flex-wrap items-center gap-4">
+            {t.photo && (
+              <img src={t.photo.src} alt="" className="size-16 rounded-md object-cover" />
+            )}
+            <label className="btn-outline cursor-pointer text-xs">
+              {uploadingIndex === i ? "Uploading…" : t.photo ? "Replace photo" : "Upload photo"}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                disabled={uploadingIndex !== null}
+                onChange={(e) => onPhotoChange(i, e)}
+              />
+            </label>
+            {t.photo && (
+              <button
+                type="button"
+                onClick={() => removePhoto(i)}
+                className="text-xs uppercase tracking-[0.18em] text-destructive hover:underline"
+              >
+                Remove photo
+              </button>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => onChange(items.filter((_, idx) => idx !== i))}
+            className="text-xs uppercase tracking-[0.18em] text-destructive hover:underline"
+          >
+            Remove testimonial
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={() => onChange([...items, { name: "", session: "", quote: "" }])}
+        className="btn-outline text-xs"
+      >
+        Add testimonial
       </button>
     </div>
   );

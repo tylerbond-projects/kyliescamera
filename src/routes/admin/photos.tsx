@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useState, type ChangeEvent } from "react";
 import { Trash2, Upload } from "lucide-react";
@@ -97,7 +97,13 @@ function AdminPhotosPage() {
       </PageIntro>
 
       <div className="container-site max-w-4xl space-y-16 pb-24">
-        <div className="text-center">
+        <div className="flex items-center justify-center gap-6">
+          <Link
+            to="/admin"
+            className="text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground"
+          >
+            ← Back to admin
+          </Link>
           <button
             type="button"
             onClick={signOut}

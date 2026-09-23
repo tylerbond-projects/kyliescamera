@@ -83,6 +83,31 @@ export const uploadGalleryPhoto = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+// Uploads to the same R2 bucket under a `testimonials/` prefix, but doesn't
+// touch gallery_photos -- the resulting URL is stored directly on the
+// testimonial itself (in the `testimonials` site_content section), not as a
+// gallery row.
+export const uploadTestimonialPhoto = createServerFn({ method: "POST" })
+  .validator((data: unknown) => {
+    if (!(data instanceof FormData)) throw new Error("Expected FormData");
+    const file = data.get("file");
+    if (!(file instanceof File)) throw new Error("Missing file.");
+    return { file };
+  })
+  .handler(async ({ data }) => {
+    const { requireAdmin } = await import("@/lib/admin-session.server");
+    await requireAdmin();
+    const { getCloudflareEnv } = await import("@/lib/cloudflare.server");
+    const env = getCloudflareEnv();
+    const safeName = data.file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+    const key = `testimonials/${Date.now()}-${safeName}`;
+    const bytes = await data.file.arrayBuffer();
+    await env.GALLERY_BUCKET.put(key, bytes, {
+      httpMetadata: { contentType: data.file.type || "application/octet-stream" },
+    });
+    return { url: `${GALLERY_PUBLIC_URL_BASE}/${key}` };
+  });
+
 export const deleteGalleryPhoto = createServerFn({ method: "POST" })
   .validator((data: unknown) => z.object({ id: z.number(), url: z.string().min(1) }).parse(data))
   .handler(async ({ data }) => {

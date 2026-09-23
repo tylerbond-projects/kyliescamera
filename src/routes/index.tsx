@@ -61,6 +61,7 @@ function HomePage() {
   const { content } = Route.useLoaderData();
   const bio = (content["bio"] as typeof BIO | undefined) ?? BIO;
   const funFacts = (content["fun_facts"] as typeof FUN_FACTS | undefined) ?? FUN_FACTS;
+  const testimonials = (content["testimonials"] as typeof TESTIMONIALS | undefined) ?? TESTIMONIALS;
 
   return (
     <>
@@ -205,7 +206,7 @@ function HomePage() {
             <h2 className="mt-3 text-4xl md:text-5xl">From past clients</h2>
           </div>
           <div className="mt-12 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-6 [scrollbar-width:thin]">
-            {TESTIMONIALS.map((t) => (
+            {testimonials.map((t) => (
               <figure
                 key={t.name}
                 className={cn(
