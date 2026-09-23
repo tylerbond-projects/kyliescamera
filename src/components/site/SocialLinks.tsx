@@ -24,14 +24,26 @@ const ICONS = {
   Pinterest: PinterestIcon,
 } as const;
 
-export function SocialLinks({ size = "sm" }: { size?: "sm" | "lg" }) {
+export function SocialLinks({
+  size = "sm",
+  nowrap = false,
+}: {
+  size?: "sm" | "lg";
+  nowrap?: boolean;
+}) {
   const large = size === "lg";
   return (
-    <ul className={large ? "flex flex-wrap justify-center gap-6" : "flex gap-3"}>
+    <ul
+      className={
+        large
+          ? `flex justify-center gap-6 ${nowrap ? "flex-nowrap overflow-x-auto" : "flex-wrap"}`
+          : "flex gap-3"
+      }
+    >
       {SITE.socials.map((s) => {
         const Icon = ICONS[s.label as keyof typeof ICONS];
         return (
-          <li key={s.label}>
+          <li key={s.label} className={large && nowrap ? "shrink-0" : undefined}>
             <a
               href={s.href}
               target="_blank"

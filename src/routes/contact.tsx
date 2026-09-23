@@ -221,8 +221,8 @@ function ContactPage() {
         </div>
 
         <div>
-          <p className="eyebrow mb-6">Or find me on social</p>
-          <SocialLinks size="lg" />
+          <p className="eyebrow mb-6">Or find me on social media</p>
+          <SocialLinks size="lg" nowrap />
         </div>
       </section>
     </>
