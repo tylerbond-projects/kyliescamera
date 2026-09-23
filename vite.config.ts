@@ -24,6 +24,11 @@ export default defineConfig({
       // merges it into the generated config regardless -- confirmed against
       // the actual output wrangler.json.
       wrangler: {
+        // Without this, Nitro auto-generates a worker name on every build
+        // (e.g. from the repo name), which is what the *.workers.dev URL is
+        // based on -- renaming the Cloudflare "project" in the dashboard
+        // only relabels it there, it doesn't change this.
+        name: "kyliescamera",
         r2_buckets: [{ binding: "GALLERY_BUCKET", bucket_name: "kylie-gallery" }],
         d1_databases: [
           {
