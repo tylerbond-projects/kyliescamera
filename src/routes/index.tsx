@@ -286,55 +286,54 @@ function TestimonialsCarousel({ testimonials }: { testimonials: typeof TESTIMONI
 
   return (
     <div className="mt-12 overflow-hidden" ref={emblaRef} onMouseEnter={stop} onMouseLeave={start}>
-      {/* Embla's loop-boundary math (measureEndGap in its source) reads the
-          last slide's `margin-right` via getComputedStyle -- it's blind to
-          flex `gap` and to padding, so the space between slides has to be
-          a real trailing margin on each one, or the loop seam breaks. */}
-      <div className="flex">
-        {testimonials.map((t) => (
-          <div
+      {/* gap-6 handles all the real, visible spacing (confirmed correct
+          everywhere except the loop seam). Embla's loop-boundary math
+          (measureEndGap in its source) separately reads the LAST slide's
+          `margin-right` via getComputedStyle to size the wrap-around --
+          it's blind to `gap` entirely -- so that one slide also gets an
+          (invisible during normal scrolling) trailing margin, purely to
+          feed Embla the number it's looking for, without touching how any
+          other slide is spaced. */}
+      <div className="flex gap-6">
+        {testimonials.map((t, i) => (
+          <figure
             key={t.name}
-            className="min-w-[85%] shrink-0 mr-6 sm:min-w-[60%] lg:min-w-[calc(33.333%-1.5rem)]"
+            className={cn(
+              "relative aspect-[8/5] min-w-[85%] shrink-0 overflow-hidden rounded-lg p-8 shadow-card sm:min-w-[60%] lg:min-w-[calc(33.333%-1.5rem)]",
+              i === testimonials.length - 1 && "mr-6",
+              !t.photo && "bg-card",
+            )}
           >
-            <figure
-              className={cn(
-                "relative aspect-[8/5] h-full overflow-hidden rounded-lg p-8 shadow-card",
-                !t.photo && "bg-card",
-              )}
-            >
-              {t.photo && (
-                <>
-                  <img
-                    src={t.photo.src}
-                    alt={t.photo.alt}
-                    className="absolute inset-0 size-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-ink/65" />
-                </>
-              )}
-              <div className="relative flex h-full flex-col justify-center">
-                <blockquote
-                  className={cn(
-                    "font-serif text-xl leading-relaxed italic",
-                    t.photo && "text-primary-foreground",
-                  )}
-                >
-                  "{t.quote}"
-                </blockquote>
-                <figcaption className="mt-6 text-sm">
-                  <span className={cn("font-medium", t.photo && "text-primary-foreground")}>
-                    {t.name}
-                  </span>
-                  <span
-                    className={t.photo ? "text-primary-foreground/75" : "text-muted-foreground"}
-                  >
-                    {" "}
-                    · {t.session}
-                  </span>
-                </figcaption>
-              </div>
-            </figure>
-          </div>
+            {t.photo && (
+              <>
+                <img
+                  src={t.photo.src}
+                  alt={t.photo.alt}
+                  className="absolute inset-0 size-full object-cover"
+                />
+                <div className="absolute inset-0 bg-ink/65" />
+              </>
+            )}
+            <div className="relative flex h-full flex-col justify-center">
+              <blockquote
+                className={cn(
+                  "font-serif text-xl leading-relaxed italic",
+                  t.photo && "text-primary-foreground",
+                )}
+              >
+                "{t.quote}"
+              </blockquote>
+              <figcaption className="mt-6 text-sm">
+                <span className={cn("font-medium", t.photo && "text-primary-foreground")}>
+                  {t.name}
+                </span>
+                <span className={t.photo ? "text-primary-foreground/75" : "text-muted-foreground"}>
+                  {" "}
+                  · {t.session}
+                </span>
+              </figcaption>
+            </div>
+          </figure>
         ))}
       </div>
     </div>
