@@ -268,45 +268,52 @@ function TestimonialsCarousel({ testimonials }: { testimonials: typeof TESTIMONI
 
   return (
     <div className="mt-12 overflow-hidden" ref={emblaRef} onMouseEnter={stop} onMouseLeave={start}>
-      <div className="flex gap-6">
+      {/* Embla clones slides for the loop, and CSS `gap` doesn't measure
+          correctly across that clone boundary -- negative margin + padding
+          on each slide is Embla's own recommended spacing pattern instead,
+          since it stays correct all the way around the loop. */}
+      <div className="-ml-6 flex">
         {testimonials.map((t) => (
-          <figure
-            key={t.name}
-            className={cn(
-              "relative aspect-[4/5] min-w-[85%] shrink-0 overflow-hidden rounded-lg p-8 shadow-card sm:min-w-[60%] lg:min-w-[calc(33.333%-1.5rem)]",
-              !t.photo && "bg-card",
-            )}
-          >
-            {t.photo && (
-              <>
-                <img
-                  src={t.photo.src}
-                  alt={t.photo.alt}
-                  className="absolute inset-0 size-full object-cover"
-                />
-                <div className="absolute inset-0 bg-ink/65" />
-              </>
-            )}
-            <div className="relative flex h-full flex-col justify-center">
-              <blockquote
-                className={cn(
-                  "font-serif text-xl leading-relaxed italic",
-                  t.photo && "text-primary-foreground",
-                )}
-              >
-                "{t.quote}"
-              </blockquote>
-              <figcaption className="mt-6 text-sm">
-                <span className={cn("font-medium", t.photo && "text-primary-foreground")}>
-                  {t.name}
-                </span>
-                <span className={t.photo ? "text-primary-foreground/75" : "text-muted-foreground"}>
-                  {" "}
-                  · {t.session}
-                </span>
-              </figcaption>
-            </div>
-          </figure>
+          <div key={t.name} className="min-w-[85%] shrink-0 pl-6 sm:min-w-[60%] lg:min-w-[33.333%]">
+            <figure
+              className={cn(
+                "relative aspect-[4/5] h-full overflow-hidden rounded-lg p-8 shadow-card",
+                !t.photo && "bg-card",
+              )}
+            >
+              {t.photo && (
+                <>
+                  <img
+                    src={t.photo.src}
+                    alt={t.photo.alt}
+                    className="absolute inset-0 size-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-ink/65" />
+                </>
+              )}
+              <div className="relative flex h-full flex-col justify-center">
+                <blockquote
+                  className={cn(
+                    "font-serif text-xl leading-relaxed italic",
+                    t.photo && "text-primary-foreground",
+                  )}
+                >
+                  "{t.quote}"
+                </blockquote>
+                <figcaption className="mt-6 text-sm">
+                  <span className={cn("font-medium", t.photo && "text-primary-foreground")}>
+                    {t.name}
+                  </span>
+                  <span
+                    className={t.photo ? "text-primary-foreground/75" : "text-muted-foreground"}
+                  >
+                    {" "}
+                    · {t.session}
+                  </span>
+                </figcaption>
+              </div>
+            </figure>
+          </div>
         ))}
       </div>
     </div>
