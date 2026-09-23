@@ -8,16 +8,18 @@ export const SITE = {
   motto: "Authentic, Heartfelt Photography.",
   tagline: "Capturing moments since 2024.",
   location: "Utah County, UT",
-  email: "hello@kyliephotography.com",
+  email: "kyliescamera28@gmail.com",
   socials: [
     {
       label: "Instagram",
       handle: "@kyliescamera__",
       href: "https://instagram.com/kyliescamera__",
     },
-    // TODO: verify this URL -- "Kylie Bond" is a display name, not a
-    // username, so this is a best-effort guess, not a confirmed link.
-    { label: "Facebook", handle: "Kylie Bond", href: "https://facebook.com/KylieBond" },
+    {
+      label: "Facebook",
+      handle: "Kylie Bond",
+      href: "https://www.facebook.com/profile.php?id=61591913608239",
+    },
     {
       label: "TikTok",
       handle: "@kyliescamera__",
