@@ -27,9 +27,12 @@ const MISC_STRIP_IMAGES: Record<string, string> = {
   "Missionary Homecoming": missionaryImg,
 };
 
-// Admin-uploaded photo, additive on top of the `as const` default shape --
-// see the matching note in /admin/content.tsx.
+// Admin-uploaded photo, additive on top of the default shapes -- see the
+// matching note in /admin/content.tsx. Misc items only ever get a photo
+// here (the homepage strip); the pricing page's Misc. Pricing cards stay
+// text-only by design.
 type ShootTypeWithImage = (typeof SHOOT_TYPES)[number] & { image?: string };
+type MiscItemWithImage = (typeof MISC_PRICING)["items"][number] & { image?: string };
 
 export const Route = createFileRoute("/")({
   loader: async () => {
@@ -69,7 +72,9 @@ function HomePage() {
   const testimonials = (content["testimonials"] as typeof TESTIMONIALS | undefined) ?? TESTIMONIALS;
   const shootTypes: readonly ShootTypeWithImage[] =
     (content["shoot_types"] as ShootTypeWithImage[] | undefined) ?? SHOOT_TYPES;
-  const miscPricing = (content["misc_pricing"] as typeof MISC_PRICING | undefined) ?? MISC_PRICING;
+  const miscPricing: { title: string; blurb: string; items: readonly MiscItemWithImage[] } =
+    (content["misc_pricing"] as
+      { title: string; blurb: string; items: MiscItemWithImage[] } | undefined) ?? MISC_PRICING;
   const shootStrip = [
     ...shootTypes.map((t) => ({
       name: t.name,
@@ -79,7 +84,7 @@ function HomePage() {
     ...miscPricing.items.map((item) => ({
       name: item.name,
       slug: item.slug,
-      image: MISC_STRIP_IMAGES[item.name],
+      image: item.image || MISC_STRIP_IMAGES[item.name],
     })),
   ];
 

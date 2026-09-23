@@ -42,7 +42,13 @@ type ShootType = {
   packages: ShootPackage[];
   image?: string | undefined;
 };
-type MiscItem = { slug: string; name: string; price: string; note: string };
+type MiscItem = {
+  slug: string;
+  name: string;
+  price: string;
+  note: string;
+  image?: string | undefined;
+};
 type MiscPricing = { title: string; blurb: string; items: MiscItem[] };
 type TestimonialPhoto = { src: string; alt: string };
 type Testimonial = {
@@ -370,16 +376,14 @@ function AdminContentPage() {
           <p className="mb-1.5 mt-4 text-xs uppercase tracking-[0.18em] text-muted-foreground">
             Items
           </p>
-          <ObjectListEditor
+          {/* These items don't get a photo on the pricing page's Misc.
+              Pricing cards (those stay text-only by design) -- the photo
+              here only sets that item's picture on the homepage strip. */}
+          <MiscItemsEditor
             items={miscPricing.items}
             onChange={(items) => setMiscPricing({ ...miscPricing, items })}
-            fields={[
-              { key: "name", label: "Name" },
-              { key: "price", label: "Price" },
-              { key: "note", label: "Note" },
-            ]}
-            emptyItem={{ slug: "", name: "", price: "", note: "" }}
-            addLabel="Add item"
+            uploadingKey={uploadingKey}
+            uploadPhoto={uploadPhoto}
           />
         </SectionEditor>
       </div>
@@ -701,6 +705,64 @@ function TestimonialsEditor({
         className="btn-outline text-xs"
       >
         Add testimonial
+      </button>
+    </div>
+  );
+}
+
+function MiscItemsEditor({
+  items,
+  onChange,
+  uploadingKey,
+  uploadPhoto,
+}: {
+  items: MiscItem[];
+  onChange: (items: MiscItem[]) => void;
+  uploadingKey: string | null;
+  uploadPhoto: (key: string, file: File, onDone: (url: string) => void) => Promise<void>;
+}) {
+  function updateItem(i: number, patch: Partial<MiscItem>) {
+    onChange(items.map((item, idx) => (idx === i ? { ...item, ...patch } : item)));
+  }
+
+  return (
+    <div className="space-y-4">
+      {items.map((item, i) => {
+        const key = `misc-${item.slug || i}`;
+        return (
+          <div key={i} className="space-y-3 rounded-md border border-border p-4">
+            <PhotoField
+              label="Homepage photo"
+              url={item.image}
+              uploading={uploadingKey === key}
+              onUpload={(file) => uploadPhoto(key, file, (url) => updateItem(i, { image: url }))}
+              onRemove={() => updateItem(i, { image: undefined })}
+            />
+            <div className="grid gap-3 sm:grid-cols-3">
+              <Field label="Name" value={item.name} onChange={(v) => updateItem(i, { name: v })} />
+              <Field
+                label="Price"
+                value={item.price}
+                onChange={(v) => updateItem(i, { price: v })}
+              />
+              <Field label="Note" value={item.note} onChange={(v) => updateItem(i, { note: v })} />
+            </div>
+            <button
+              type="button"
+              onClick={() => onChange(items.filter((_, idx) => idx !== i))}
+              className="text-xs uppercase tracking-[0.18em] text-destructive hover:underline"
+            >
+              Remove
+            </button>
+          </div>
+        );
+      })}
+      <button
+        type="button"
+        onClick={() => onChange([...items, { slug: "", name: "", price: "", note: "" }])}
+        className="btn-outline text-xs"
+      >
+        Add item
       </button>
     </div>
   );
