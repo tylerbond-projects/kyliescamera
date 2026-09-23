@@ -20,7 +20,7 @@ export const Route = createFileRoute("/admin/photos")({
   },
   head: () => ({
     meta: [
-      { title: "Manage Photos — Kylie's Camera Admin" },
+      { title: "Manage Gallery Photos — Kylie's Camera Admin" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -92,7 +92,7 @@ function AdminPhotosPage() {
 
   return (
     <>
-      <PageIntro eyebrow="Admin" title="Manage Photos">
+      <PageIntro eyebrow="Admin" title="Manage Gallery Photos">
         Upload photos for each session type. They'll show up on the public gallery right away.
       </PageIntro>
 

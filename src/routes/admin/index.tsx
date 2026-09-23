@@ -32,7 +32,7 @@ function AdminDashboard() {
           to="/admin/photos"
           className="block rounded-lg border border-border bg-card p-6 shadow-card transition-transform hover:-translate-y-0.5"
         >
-          <h2 className="font-serif text-xl">Manage Photos</h2>
+          <h2 className="font-serif text-xl">Manage Gallery Photos</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Upload and remove gallery photos for each session type.
           </p>
