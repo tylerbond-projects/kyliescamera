@@ -1,9 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { PageIntro } from "@/components/site/PageIntro";
-import { useAdminSession } from "@/hooks/use-admin-session";
-import { supabase } from "@/integrations/supabase/client";
+import { adminLogout, getAdminStatus } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin/")({
+  beforeLoad: async () => {
+    const { isAdmin } = await getAdminStatus();
+    if (!isAdmin) throw redirect({ to: "/admin/login" });
+  },
   head: () => ({
     meta: [{ title: "Admin — Kylie's Camera" }, { name: "robots", content: "noindex" }],
   }),
@@ -11,25 +15,17 @@ export const Route = createFileRoute("/admin/")({
 });
 
 function AdminDashboard() {
-  const session = useAdminSession();
+  const navigate = useNavigate();
+  const logout = useServerFn(adminLogout);
 
   async function signOut() {
-    await supabase.auth.signOut();
-  }
-
-  if (!session) {
-    return (
-      <section className="container-site flex min-h-[50vh] items-center justify-center">
-        <p className="text-muted-foreground">Checking your session…</p>
-      </section>
-    );
+    await logout();
+    navigate({ to: "/admin/login" });
   }
 
   return (
     <>
-      <PageIntro eyebrow="Admin" title="Site Admin">
-        Signed in as {session.user.email}.
-      </PageIntro>
+      <PageIntro eyebrow="Admin" title="Site Admin" />
 
       <div className="container-site max-w-lg space-y-4 pb-24">
         <Link

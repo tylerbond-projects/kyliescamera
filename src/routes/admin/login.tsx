@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState, type FormEvent } from "react";
 import { PageIntro } from "@/components/site/PageIntro";
-import { supabase } from "@/integrations/supabase/client";
+import { adminLogin } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin/login")({
   head: () => ({
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/admin/login")({
 
 function AdminLoginPage() {
   const navigate = useNavigate();
+  const login = useServerFn(adminLogin);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -20,27 +22,21 @@ function AdminLoginPage() {
     setError(null);
     setLoading(true);
     const fd = new FormData(e.currentTarget);
-    const email = String(fd.get("email") ?? "").trim();
     const password = String(fd.get("password") ?? "");
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (signInError) {
-      setError(signInError.message);
-      return;
+    try {
+      await login({ data: { password } });
+      navigate({ to: "/admin/photos" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
-    navigate({ to: "/admin/photos" });
   }
 
   return (
     <>
       <PageIntro eyebrow="Admin" title="Sign In" />
       <form onSubmit={onSubmit} className="container-site max-w-sm space-y-5 pb-20">
-        <label className="block">
-          <span className="mb-1.5 block text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            Email
-          </span>
-          <input name="email" type="email" required className="field" autoComplete="email" />
-        </label>
         <label className="block">
           <span className="mb-1.5 block text-xs uppercase tracking-[0.18em] text-muted-foreground">
             Password
@@ -51,6 +47,7 @@ function AdminLoginPage() {
             required
             className="field"
             autoComplete="current-password"
+            autoFocus
           />
         </label>
         {error && <p className="text-sm text-destructive">{error}</p>}

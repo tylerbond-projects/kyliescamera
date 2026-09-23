@@ -1,12 +1,23 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useState, type ChangeEvent } from "react";
 import { Trash2, Upload } from "lucide-react";
 import { PageIntro } from "@/components/site/PageIntro";
-import { useAdminSession } from "@/hooks/use-admin-session";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  adminLogout,
+  createGalleryUploadUrl,
+  deleteGalleryPhoto,
+  getAdminStatus,
+  recordGalleryPhoto,
+} from "@/lib/admin.functions";
 import { SHOOT_TYPES, MISC_PRICING } from "@/lib/site";
 
 export const Route = createFileRoute("/admin/photos")({
+  beforeLoad: async () => {
+    const { isAdmin } = await getAdminStatus();
+    if (!isAdmin) throw redirect({ to: "/admin/login" });
+  },
   head: () => ({
     meta: [
       { title: "Manage Photos — Kylie's Camera Admin" },
@@ -24,7 +35,12 @@ const CATEGORIES = [
 type GalleryPhoto = { id: string; category: string; url: string; caption: string | null };
 
 function AdminPhotosPage() {
-  const session = useAdminSession();
+  const navigate = useNavigate();
+  const createUploadUrl = useServerFn(createGalleryUploadUrl);
+  const recordPhoto = useServerFn(recordGalleryPhoto);
+  const deletePhoto = useServerFn(deleteGalleryPhoto);
+  const logout = useServerFn(adminLogout);
+
   const [photos, setPhotos] = useState<GalleryPhoto[] | null>(null);
   const [uploading, setUploading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -42,8 +58,8 @@ function AdminPhotosPage() {
   }, []);
 
   useEffect(() => {
-    if (session) loadPhotos();
-  }, [session, loadPhotos]);
+    loadPhotos();
+  }, [loadPhotos]);
 
   async function onUpload(category: string, e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -52,15 +68,12 @@ function AdminPhotosPage() {
     setError(null);
     setUploading(category);
     try {
-      const path = `${category}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "-")}`;
-      const { error: uploadError } = await supabase.storage.from("gallery").upload(path, file);
+      const { path, token } = await createUploadUrl({ data: { category, filename: file.name } });
+      const { error: uploadError } = await supabase.storage
+        .from("gallery")
+        .uploadToSignedUrl(path, token, file);
       if (uploadError) throw uploadError;
-      const { data: publicUrl } = supabase.storage.from("gallery").getPublicUrl(path);
-      const existingCount = photos?.filter((p) => p.category === category).length ?? 0;
-      const { error: insertError } = await supabase
-        .from("gallery_photos")
-        .insert({ category, url: publicUrl.publicUrl, sort_order: existingCount });
-      if (insertError) throw insertError;
+      await recordPhoto({ data: { category, path } });
       await loadPhotos();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed. Please try again.");
@@ -72,29 +85,17 @@ function AdminPhotosPage() {
   async function onDelete(photo: GalleryPhoto) {
     if (!confirm("Delete this photo?")) return;
     setError(null);
-    const { error: deleteError } = await supabase
-      .from("gallery_photos")
-      .delete()
-      .eq("id", photo.id);
-    if (deleteError) {
-      setError(deleteError.message);
-      return;
+    try {
+      await deletePhoto({ data: { id: photo.id, url: photo.url } });
+      await loadPhotos();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Delete failed. Please try again.");
     }
-    const path = photo.url.split("/gallery/")[1];
-    if (path) await supabase.storage.from("gallery").remove([path]);
-    await loadPhotos();
   }
 
   async function signOut() {
-    await supabase.auth.signOut();
-  }
-
-  if (!session) {
-    return (
-      <section className="container-site flex min-h-[50vh] items-center justify-center">
-        <p className="text-muted-foreground">Checking your session…</p>
-      </section>
-    );
+    await logout();
+    navigate({ to: "/admin/login" });
   }
 
   return (
