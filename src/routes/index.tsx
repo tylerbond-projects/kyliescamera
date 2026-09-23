@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
+import { useCallback, useEffect, useRef } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import { SITE, BIO, FUN_FACTS, TESTIMONIALS, SHOOT_TYPES, MISC_PRICING } from "@/lib/site";
 import { SocialLinks } from "@/components/site/SocialLinks";
 import { CATEGORY_IMAGES } from "@/lib/images";
@@ -205,49 +207,7 @@ function HomePage() {
             <p className="eyebrow">Kind words</p>
             <h2 className="mt-3 text-4xl md:text-5xl">From past clients</h2>
           </div>
-          <div className="mt-12 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-6 [scrollbar-width:thin]">
-            {testimonials.map((t) => (
-              <figure
-                key={t.name}
-                className={cn(
-                  "relative min-w-[85%] snap-center overflow-hidden rounded-lg p-8 shadow-card sm:min-w-[60%] lg:min-w-[calc(33.333%-1rem)]",
-                  !t.photo && "bg-card",
-                )}
-              >
-                {t.photo && (
-                  <>
-                    <img
-                      src={t.photo.src}
-                      alt={t.photo.alt}
-                      className="absolute inset-0 size-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-ink/65" />
-                  </>
-                )}
-                <div className="relative">
-                  <blockquote
-                    className={cn(
-                      "mt-4 font-serif text-xl leading-relaxed italic",
-                      t.photo && "text-primary-foreground",
-                    )}
-                  >
-                    "{t.quote}"
-                  </blockquote>
-                  <figcaption className="mt-6 text-sm">
-                    <span className={cn("font-medium", t.photo && "text-primary-foreground")}>
-                      {t.name}
-                    </span>
-                    <span
-                      className={t.photo ? "text-primary-foreground/75" : "text-muted-foreground"}
-                    >
-                      {" "}
-                      · {t.session}
-                    </span>
-                  </figcaption>
-                </div>
-              </figure>
-            ))}
-          </div>
+          <TestimonialsCarousel testimonials={testimonials} />
         </div>
       </section>
 
@@ -274,5 +234,81 @@ function FunFact({ fact }: { fact: { title: string; text: string } }) {
         {fact.text}
       </p>
     </li>
+  );
+}
+
+function TestimonialsCarousel({ testimonials }: { testimonials: typeof TESTIMONIALS }) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+  const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const stop = useCallback(() => {
+    if (autoplayRef.current) {
+      clearInterval(autoplayRef.current);
+      autoplayRef.current = null;
+    }
+  }, []);
+
+  const start = useCallback(() => {
+    stop();
+    if (!emblaApi) return;
+    autoplayRef.current = setInterval(() => emblaApi.scrollNext(), 4000);
+  }, [emblaApi, stop]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    start();
+    emblaApi.on("pointerDown", stop);
+    emblaApi.on("pointerUp", start);
+    return () => {
+      stop();
+      emblaApi.off("pointerDown", stop);
+      emblaApi.off("pointerUp", start);
+    };
+  }, [emblaApi, start, stop]);
+
+  return (
+    <div className="mt-12 overflow-hidden" ref={emblaRef} onMouseEnter={stop} onMouseLeave={start}>
+      <div className="flex gap-6">
+        {testimonials.map((t) => (
+          <figure
+            key={t.name}
+            className={cn(
+              "relative min-w-[85%] shrink-0 overflow-hidden rounded-lg p-8 shadow-card sm:min-w-[60%] lg:min-w-[calc(33.333%-1.5rem)]",
+              !t.photo && "bg-card",
+            )}
+          >
+            {t.photo && (
+              <>
+                <img
+                  src={t.photo.src}
+                  alt={t.photo.alt}
+                  className="absolute inset-0 size-full object-cover"
+                />
+                <div className="absolute inset-0 bg-ink/65" />
+              </>
+            )}
+            <div className="relative">
+              <blockquote
+                className={cn(
+                  "mt-4 font-serif text-xl leading-relaxed italic",
+                  t.photo && "text-primary-foreground",
+                )}
+              >
+                "{t.quote}"
+              </blockquote>
+              <figcaption className="mt-6 text-sm">
+                <span className={cn("font-medium", t.photo && "text-primary-foreground")}>
+                  {t.name}
+                </span>
+                <span className={t.photo ? "text-primary-foreground/75" : "text-muted-foreground"}>
+                  {" "}
+                  · {t.session}
+                </span>
+              </figcaption>
+            </div>
+          </figure>
+        ))}
+      </div>
+    </div>
   );
 }

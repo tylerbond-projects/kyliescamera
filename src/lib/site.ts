@@ -12,19 +12,21 @@ export const SITE = {
   socials: [
     {
       label: "Instagram",
-      handle: "@kylie.photography",
-      href: "https://instagram.com/kylie.photography",
+      handle: "@kyliescamera__",
+      href: "https://instagram.com/kyliescamera__",
     },
-    { label: "Facebook", handle: "Kylie's Camera", href: "https://facebook.com/kyliephotography" },
+    // TODO: verify this URL -- "Kylie Bond" is a display name, not a
+    // username, so this is a best-effort guess, not a confirmed link.
+    { label: "Facebook", handle: "Kylie Bond", href: "https://facebook.com/KylieBond" },
     {
       label: "TikTok",
-      handle: "@kylie.photography",
-      href: "https://tiktok.com/@kylie.photography",
+      handle: "@kyliescamera__",
+      href: "https://tiktok.com/@kyliescamera__",
     },
     {
       label: "Pinterest",
-      handle: "@kylie.photography",
-      href: "https://pinterest.com/kylie.photography",
+      handle: "kyliebond08",
+      href: "https://pinterest.com/kyliebond08",
     },
   ],
 };
