@@ -13,6 +13,15 @@ const TO_EMAIL = "tylerbond.projects@gmail.com";
 // address and lift that restriction.
 const FROM_EMAIL = "Kylie's Camera Contact Form <onboarding@resend.dev>";
 
+// Kylie's business number, shown in the email when a visitor prefers to be
+// texted back. Digits only; formatted for display where it's shown.
+const BUSINESS_PHONE = "6263199787";
+
+function formatPhoneDisplay(digits: string): string {
+  const match = /^1?(\d{3})(\d{3})(\d{4})$/.exec(digits.replace(/\D/g, ""));
+  return match ? `(${match[1]}) ${match[2]}-${match[3]}` : digits;
+}
+
 // Brand colors, matched to the monochrome/blush palette in src/styles.css
 // (email clients can't read CSS custom properties, so these are the same
 // tones spelled out as plain hex).
@@ -70,6 +79,23 @@ function escapeHtmlMultiline(value: string): string {
 function buildEmailHtml(data: z.infer<typeof contactSchema>): string {
   const vision = data.vision || "She didn't share any details yet.";
   const firstName = data.name.split(/\s+/)[0] || data.name;
+  const prefersText = data.preferred_contact === "Text";
+  const visitorPhoneDigits = data.phone.replace(/[^0-9+]/g, "");
+  const cta = prefersText
+    ? {
+        href: `sms:${visitorPhoneDigits}`,
+        label: `Text ${firstName}`,
+        note: `Opens a text to ${escapeHtml(
+          data.phone,
+        )} -- that's how they'd like to hear back. Kylie's business number: ${formatPhoneDisplay(
+          BUSINESS_PHONE,
+        )}.`,
+      }
+    : {
+        href: `mailto:${escapeHtml(data.email)}`,
+        label: `Reply to ${firstName}`,
+        note: `Or just hit reply on this email -- it goes straight to ${escapeHtml(data.email)}.`,
+      };
   const rowsHtml = FIELD_LABELS.map(([key, label]) => {
     const value = data[key] || "—";
     return `
@@ -151,13 +177,13 @@ function buildEmailHtml(data: z.infer<typeof contactSchema>): string {
             <tr>
               <td style="padding:36px 40px 4px;text-align:center;">
                 <a
-                  href="mailto:${escapeHtml(data.email)}"
+                  href="${cta.href}"
                   style="display:inline-block;background-color:${BRAND.ink};color:${BRAND.white};font-family:Helvetica,Arial,sans-serif;font-size:13px;font-weight:bold;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;padding:15px 36px;border-radius:999px;"
                 >
-                  Reply to ${escapeHtml(firstName)}
+                  ${escapeHtml(cta.label)}
                 </a>
                 <p style="margin:16px 0 0;font-family:Helvetica,Arial,sans-serif;font-size:13px;color:${BRAND.muted};">
-                  Or just hit reply on this email -- it goes straight to ${escapeHtml(data.email)}.
+                  ${cta.note}
                 </p>
               </td>
             </tr>
