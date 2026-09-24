@@ -25,7 +25,7 @@ function AdminLoginPage() {
     const password = String(fd.get("password") ?? "");
     try {
       await login({ data: { password } });
-      navigate({ to: "/admin/photos" });
+      navigate({ to: "/admin" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
     } finally {

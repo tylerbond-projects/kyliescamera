@@ -34,7 +34,7 @@ export async function adminSession() {
   return useSession<{ admin?: boolean }>({
     password: await sha256Hex(adminPassword),
     name: "kylie-admin",
-    maxAge: 60 * 60 * 24 * 7, // 1 week
+    maxAge: 60 * 60 * 24, // 1 day -- admin has to sign back in daily
     cookie: { httpOnly: true, secure: true, sameSite: "lax" },
   });
 }
