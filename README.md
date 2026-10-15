@@ -1,104 +1,62 @@
-# Kylie's Portfolio
+# Kylie Photography
 
-Here's a Replit-ready prompt:
+The website for **Kylie Photography**, a portrait and event photographer in Utah County, UT.
 
-Build a full-stack photography business website for Kylie Photography, based in Utah County, UT. Motto: "Authentic, Heartfelt Photography." Tagline: "Capturing moments since 2024."
+> *Authentic, Heartfelt Photography.* Capturing moments since 2024.
 
-Tech stack: React frontend, Node/Express backend, with a database (Replit DB or PostgreSQL) to store contact form submissions and booking requests. Use a clean, modern component structure.
+Clients can browse her work, see session types and pricing, send a booking request, and later view their finished photos and sign their contract on private pages.
 
-Core functionality:
+## Pages
 
-Contact/booking form that saves submissions to the database and (if possible) sends an email notification to the site owner
+| Route | What it is |
+| --- | --- |
+| `/` | Home: hero, short bio, fun facts, session types, testimonials, social links |
+| `/gallery` | Sample work by category |
+| `/pricing` | Info & Pricing: portrait, couple, family, wedding, dance, sports, missionary homecoming and other shoots |
+| `/faq` | Common questions (turnaround, deposits, what to wear, travel) |
+| `/contact` | Booking form; submissions are saved to the database |
+| `/client/:slug` | Private gallery where one client can view and download their photos |
+| `/contract/:slug` | A client's contract, signed by typing their name and checking a box (time-stamped) |
 
-Photo gallery section to showcase example shoots (use placeholder images for now, organized by category matching the session types below)
+## Tech stack
 
-Client gallery delivery — a simple way for the photographer to share a link/page where a specific client can view/download their finished photos (a basic gallery-per-client page is fine, even if manually set up initially)
+- [TanStack Start](https://tanstack.com/start) (React + Vite) with server functions
+- Tailwind CSS and shadcn/ui components
+- Supabase (Postgres) through Lovable Cloud
+- Deploys to Cloudflare Pages
 
-Contract page/flow — a page where clients can view and digitally sign a contract (e-signature can be a simple typed-name + checkbox confirmation stored with a timestamp, rather than a full DocuSign integration)
+## Database
 
-Pages/sections:
+Three tables, all with row-level security turned on and accessed only from the server:
 
-Home page
+- `contact_submissions`: booking requests from the contact form
+- `client_galleries`: one row per client, with a URL `slug` and a JSON list of photos
+- `contracts`: contract text per client, plus the typed signature and when it was signed
 
-Hero section with the motto and tagline
+Client galleries and contracts are set up by hand for now: add a row with a unique `slug`, then send the client the `/client/<slug>` or `/contract/<slug>` link.
 
-Intro bio paragraph with a "Contact Me" button/link
+## Running locally
 
-"Fun facts about me" section (3-5 short fun facts, placeholder text is fine)
-
-Testimonials carousel/section (3+ placeholder testimonials with client names)
-
-Social media icons/links section (Instagram, Facebook, TikTok — use placeholder handles)
-
-Info & Pricing page
-
-Sections for each shoot type, each with a description and price range (placeholder pricing is fine):
-
-Portrait session
-
-Couple
-
-Family
-
-Wedding
-
-Dance
-
-Sports
-
-Missionary homecoming & other misc shoots
-
-Contact page
-
-Form fields:
-
-Name (text, required)
-
-Email (email, required)
-
-Phone number (tel, required)
-
-Booking interest level (radio buttons): "I want to book with you" / "You're one of our main contenders" / "Still looking around"
-
-How did you hear about me (text or dropdown)
-
-Desired month to book (dropdown or date picker, month-level)
-
-Type of shoot wanted (dropdown matching the pricing categories above)
-
-Tell me your vision for the shoot (textarea)
-
-Your socials (text, optional)
-
-Preferred contact method (radio): Email or Text
-
-A note near the submit button: "If you haven't heard back within 3 days, please check your junk/spam folder."
-
-On submit, save to database and show a confirmation message
-
-FAQ page
-
-4 Q&A items in an accordion/expandable format (use placeholder questions like turnaround time, deposit policy, what to wear, travel fees — I'll customize the real content later)
-
-Design: simple, warm, soft, natural color palette (think blush, cream), large hero imagery, mobile-responsive, elegant serif or script accent font for headings paired with a clean sans-serif for body text.
-
-This project was built with [Lovable](https://lovable.dev).
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/344db991-4053-5ee1-827e-325eb17d3bd3).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Requires Node.js 22 (see `.node-version`) and npm.
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
+git clone https://github.com/tylerbond-projects/kyliescamera.git
+cd kyliescamera
 npm i
 npm run dev
 ```
+
+| Script | Does |
+| --- | --- |
+| `npm run dev` | Start the dev server |
+| `npm run build` | Production build |
+| `npm run build:pages` | Build for Cloudflare Pages (output in `dist`) |
+| `npm run lint` | Run ESLint |
+
+## Editing in Lovable
+
+This project is connected to [Lovable](https://lovable.dev). Changes made in the Lovable editor are committed to this repo, and pushes to `main` sync back to Lovable. Don't force-push or rewrite history that's already pushed.
+
+## Status
+
+The site is built, but it still uses placeholder content: sample photos, pricing, testimonials, fun facts, FAQ answers and social handles need to be replaced with Kylie's real ones, and no client galleries have been uploaded yet.
