@@ -1,4 +1,4 @@
-# Kylie's Portfolio
+# Kylie's Camera
 
 Here's a Replit-ready prompt:
 
