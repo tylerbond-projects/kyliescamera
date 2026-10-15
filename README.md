@@ -1,104 +1,81 @@
 # Kylie's Camera
 
-Here's a Replit-ready prompt:
+The website for **Kylie's Camera**, a portrait and event photographer in Utah County, UT.
 
-Build a full-stack photography business website for Kylie Photography, based in Utah County, UT. Motto: "Authentic, Heartfelt Photography." Tagline: "Capturing moments since 2024."
+> *Authentic, Heartfelt Photography.* Capturing moments since 2024.
 
-Tech stack: React frontend, Node/Express backend, with a database (Replit DB or PostgreSQL) to store contact form submissions and booking requests. Use a clean, modern component structure.
+Visitors can browse Kylie's work, see sessions and pricing, and send a booking inquiry. Clients get a private link to view and download their finished photos. Kylie updates photos and text herself from a password-protected admin area, with no code changes needed.
 
-Core functionality:
+## Public pages
 
-Contact/booking form that saves submissions to the database and (if possible) sends an email notification to the site owner
+| Route | What it is |
+| --- | --- |
+| `/` | Home: hero, bio, fun facts, session types, testimonials, social links |
+| `/gallery` | Sample work, grouped by session type |
+| `/pricing` | Info & Pricing: portrait, couple, family and wedding sessions, plus misc. pricing (school dances, friends, game day, missionary homecoming) |
+| `/faq` | Common questions |
+| `/contact` | Booking inquiry form; each inquiry is emailed to Kylie |
+| `/client/:slug` | A client's private gallery; click any photo to download the full-resolution file |
 
-Photo gallery section to showcase example shoots (use placeholder images for now, organized by category matching the session types below)
+## Admin area
 
-Client gallery delivery — a simple way for the photographer to share a link/page where a specific client can view/download their finished photos (a basic gallery-per-client page is fine, even if manually set up initially)
+The admin area lives at `/admin`. Sign in at `/admin/login` with the shared admin password. Sessions last one day, and admin pages are hidden from search engines.
 
-Contract page/flow — a page where clients can view and digitally sign a contract (e-signature can be a simple typed-name + checkbox confirmation stored with a timestamp, rather than a full DocuSign integration)
+| Route | What it does |
+| --- | --- |
+| `/admin` | Admin home, with links to each tool below and a sign-out button |
+| `/admin/photos` | **Manage Gallery Photos**: upload or delete photos for each session type on the Gallery page |
+| `/admin/content` | **Edit Site Content**: hero heading and photo, homepage photos, bio, fun facts, FAQ, testimonials (with photos), session pricing (name, price, blurb, checklist, disclaimer, photo) and misc. pricing |
+| `/admin/client-galleries` | **Client Galleries**: create a gallery for a client, copy their private link, and manage or delete existing galleries |
+| `/admin/client-galleries/:id` | One client's gallery: edit the title and message, upload photos, and delete photos |
 
-Pages/sections:
+Basic site info like the business name and social links is still changed in code (`src/lib/site.ts`).
 
-Home page
+## Tech stack
 
-Hero section with the motto and tagline
+- [TanStack Start](https://tanstack.com/start) (React + Vite) with server functions
+- Tailwind CSS and shadcn/ui components
+- Hosted on **Cloudflare Pages**
+- **Cloudflare D1** database (`kylie-admin`) for gallery photos, editable content and client galleries
+- **Cloudflare R2** bucket for uploaded photos
+- **Resend** to email contact-form inquiries
 
-Intro bio paragraph with a "Contact Me" button/link
+## Database
 
-"Fun facts about me" section (3-5 short fun facts, placeholder text is fine)
+The schema is in [`d1/schema.sql`](d1/schema.sql). Run new statements in the Cloudflare D1 console.
 
-Testimonials carousel/section (3+ placeholder testimonials with client names)
+- `gallery_photos`: photos on the public Gallery page, by category
+- `site_content`: one row per editable section, stored as JSON. If a section has no row, the site shows the default text from `src/lib/site.ts`
+- `client_galleries` and `client_gallery_photos`: each client's private gallery and its photos
 
-Social media icons/links section (Instagram, Facebook, TikTok — use placeholder handles)
+## Environment
 
-Info & Pricing page
+| Name | Purpose |
+| --- | --- |
+| `ADMIN_PASSWORD` | Password for the admin area |
+| `RESEND_API_KEY` | Sends contact-form emails |
+| `DB` | D1 database binding |
+| `GALLERY_BUCKET` | R2 bucket binding for uploads |
 
-Sections for each shoot type, each with a description and price range (placeholder pricing is fine):
+## Running locally
 
-Portrait session
-
-Couple
-
-Family
-
-Wedding
-
-Dance
-
-Sports
-
-Missionary homecoming & other misc shoots
-
-Contact page
-
-Form fields:
-
-Name (text, required)
-
-Email (email, required)
-
-Phone number (tel, required)
-
-Booking interest level (radio buttons): "I want to book with you" / "You're one of our main contenders" / "Still looking around"
-
-How did you hear about me (text or dropdown)
-
-Desired month to book (dropdown or date picker, month-level)
-
-Type of shoot wanted (dropdown matching the pricing categories above)
-
-Tell me your vision for the shoot (textarea)
-
-Your socials (text, optional)
-
-Preferred contact method (radio): Email or Text
-
-A note near the submit button: "If you haven't heard back within 3 days, please check your junk/spam folder."
-
-On submit, save to database and show a confirmation message
-
-FAQ page
-
-4 Q&A items in an accordion/expandable format (use placeholder questions like turnaround time, deposit policy, what to wear, travel fees — I'll customize the real content later)
-
-Design: simple, warm, soft, natural color palette (think blush, cream), large hero imagery, mobile-responsive, elegant serif or script accent font for headings paired with a clean sans-serif for body text.
-
-This project was built with [Lovable](https://lovable.dev).
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/344db991-4053-5ee1-827e-325eb17d3bd3).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Requires Node.js 22 (see `.node-version`) and npm.
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
+git clone https://github.com/tylerbond-projects/kyliescamera.git
+cd kyliescamera
 npm i
 npm run dev
 ```
+
+| Script | Does |
+| --- | --- |
+| `npm run dev` | Start the dev server |
+| `npm run build` | Production build |
+| `npm run build:pages` | Build for Cloudflare Pages (output in `dist`) |
+| `npm run lint` | Run ESLint |
+
+## Branches
+
+- `cloudflare-deploy`: the live site, including the admin area
+- `main`: the original Lovable version. It's connected to [Lovable](https://lovable.dev), so don't force-push or rewrite its history.
