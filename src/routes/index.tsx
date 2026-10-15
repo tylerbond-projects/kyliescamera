@@ -7,15 +7,20 @@ import { SocialLinks } from "@/components/site/SocialLinks";
 import { CATEGORY_IMAGES } from "@/lib/images";
 import { cn } from "@/lib/utils";
 import { getSiteContentMap } from "@/lib/content.functions";
-import heroImg from "@/assets/hero.jpg";
-import portraitImg from "@/assets/portrait.jpg";
+import hero1280 from "@/assets/site/hero-1280.jpg";
+import hero1920 from "@/assets/site/hero-1920.jpg";
+import hero2400 from "@/assets/site/hero-2400.jpg";
+import bioImg from "@/assets/site/bio.jpg";
 import danceImg from "@/assets/dance.jpg";
 import sportsImg from "@/assets/sports.jpg";
 import friendsImg from "@/assets/gallery/friends-1.jpg";
 import missionaryImg from "@/assets/gallery/missionary-1.jpg";
 
-// Placeholder — swap for a real photo of Kylie whenever it's ready.
-const funFactsImg = portraitImg;
+// Web-sized copies of the hero and bio photos, bundled with the site so they
+// come from Cloudflare's CDN instead of the full-size originals on r2.dev.
+// A photo set in the admin still overrides these.
+const HERO_SRCSET = `${hero1280} 1280w, ${hero1920} 1920w, ${hero2400} 2400w`;
+const funFactsImg = bioImg;
 
 // The four full sessions plus the four Misc. Pricing items — Friends and
 // Missionary use Kylie's own photos; School Dances and Game Day are still
@@ -39,7 +44,21 @@ export const Route = createFileRoute("/")({
     const content = await getSiteContentMap().catch(() => ({}) as Record<string, unknown>);
     return { content };
   },
-  head: () => ({
+  head: ({ loaderData }) => ({
+    // Start downloading the hero right away, before the CSS and JS -- only
+    // for the bundled photo, since an admin override is a different file.
+    links: (loaderData?.content["hero"] as { image?: string } | undefined)?.image
+      ? []
+      : [
+          {
+            rel: "preload",
+            as: "image",
+            href: hero1920,
+            imageSrcSet: HERO_SRCSET,
+            imageSizes: "100vw",
+            fetchPriority: "high",
+          },
+        ],
     meta: [
       { title: "Kylie's Camera — Authentic, Heartfelt Photography in Utah County" },
       {
@@ -63,9 +82,9 @@ function HomePage() {
   const { content } = Route.useLoaderData();
   const hero = (content["hero"] as { heading?: string; image?: string } | undefined) ?? {};
   const heroHeading = hero.heading || HERO.heading;
-  const heroImage = hero.image || heroImg;
+  const heroImage = hero.image || hero1920;
   const images = (content["images"] as { bio?: string; funFacts?: string } | undefined) ?? {};
-  const bioImage = images.bio || portraitImg;
+  const bioImage = images.bio || bioImg;
   const funFactsImage = images.funFacts || funFactsImg;
   const bio = (content["bio"] as typeof BIO | undefined) ?? BIO;
   const funFacts = (content["fun_facts"] as typeof FUN_FACTS | undefined) ?? FUN_FACTS;
@@ -94,9 +113,13 @@ function HomePage() {
       <section className="relative flex min-h-[88vh] items-end overflow-hidden">
         <img
           src={heroImage}
-          alt="Couple embracing in a golden field at sunset"
+          srcSet={hero.image ? undefined : HERO_SRCSET}
+          sizes="100vw"
+          alt="A family standing together in a mountain meadow"
           width={1920}
-          height={1152}
+          height={1280}
+          fetchPriority="high"
+          decoding="async"
           className="absolute inset-0 size-full object-cover animate-fade-in"
         />
         <div className="hero-overlay absolute inset-0" />
@@ -123,10 +146,11 @@ function HomePage() {
           <div className="absolute -inset-3 -rotate-2 rounded-lg bg-blush" />
           <img
             src={bioImage}
-            alt="Kylie laughing outdoors"
-            width={1024}
-            height={1280}
+            alt="A woman sitting in a mountain meadow holding a camera"
+            width={933}
+            height={1400}
             loading="lazy"
+            decoding="async"
             className="relative aspect-[4/5] w-full rounded-md object-cover shadow-soft"
           />
         </div>

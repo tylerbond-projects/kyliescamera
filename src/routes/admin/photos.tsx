@@ -11,6 +11,7 @@ import {
   uploadGalleryPhoto,
   type GalleryPhotoRow,
 } from "@/lib/admin.functions";
+import { resizeForWeb } from "@/lib/resize-image";
 import { SHOOT_TYPES, MISC_PRICING } from "@/lib/site";
 
 export const Route = createFileRoute("/admin/photos")({
@@ -64,7 +65,7 @@ function AdminPhotosPage() {
     try {
       const fd = new FormData();
       fd.set("category", category);
-      fd.set("file", file);
+      fd.set("file", await resizeForWeb(file));
       await uploadPhoto({ data: fd });
       await loadPhotos();
     } catch (err) {

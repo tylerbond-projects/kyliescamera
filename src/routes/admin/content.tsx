@@ -9,6 +9,7 @@ import {
   uploadTestimonialPhoto,
 } from "@/lib/admin.functions";
 import { getSiteContentMap, updateSiteContentSection } from "@/lib/content.functions";
+import { resizeForWeb } from "@/lib/resize-image";
 import { HERO, BIO, FUN_FACTS, FAQS, SHOOT_TYPES, MISC_PRICING, TESTIMONIALS } from "@/lib/site";
 
 export const Route = createFileRoute("/admin/content")({
@@ -124,7 +125,7 @@ function AdminContentPage() {
     try {
       const fd = new FormData();
       fd.set("prefix", key);
-      fd.set("file", file);
+      fd.set("file", await resizeForWeb(file));
       const { url } = await uploadImage({ data: fd });
       onDone(url);
     } finally {
@@ -640,7 +641,7 @@ function TestimonialsEditor({
     setUploadingIndex(i);
     try {
       const fd = new FormData();
-      fd.set("file", file);
+      fd.set("file", await resizeForWeb(file));
       const { url } = await uploadPhoto({ data: fd });
       updateItem(i, { photo: { src: url, alt: items[i]?.name || "Testimonial photo" } });
     } finally {
