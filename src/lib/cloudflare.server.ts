@@ -21,6 +21,11 @@ export type CloudflareEnv = {
       options?: { httpMetadata?: { contentType?: string; contentDisposition?: string } },
     ) => Promise<unknown>;
     delete: (key: string) => Promise<void>;
+    get: (key: string) => Promise<{
+      body: ReadableStream;
+      size: number;
+      httpMetadata?: { contentType?: string };
+    } | null>;
   };
 };
 

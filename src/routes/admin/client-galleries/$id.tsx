@@ -1,7 +1,8 @@
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useState, type ChangeEvent, type FormEvent } from "react";
-import { Trash2, Upload } from "lucide-react";
+import { Check, Link2, Trash2, Upload } from "lucide-react";
+import { toast } from "sonner";
 import { PageIntro } from "@/components/site/PageIntro";
 import { adminLogout, getAdminStatus } from "@/lib/admin.functions";
 import {
@@ -38,7 +39,8 @@ function AdminClientGalleryPage() {
 
   const [gallery, setGallery] = useState<ClientGallery | null | undefined>(undefined);
   const [photos, setPhotos] = useState<ClientGalleryPhoto[]>([]);
-  const [uploading, setUploading] = useState(false);
+  const [upload, setUpload] = useState<{ done: number; total: number } | null>(null);
+  const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saved" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -81,22 +83,47 @@ function AdminClientGalleryPage() {
     }
   }
 
+  // Files go up one at a time -- each is a full-resolution photo, and the
+  // server assigns sort_order from the current count, so sequential uploads
+  // also keep them in the order they were picked.
   async function onUpload(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+    const files = Array.from(e.target.files ?? []);
     e.target.value = "";
-    if (!file || !gallery) return;
+    if (files.length === 0 || !gallery) return;
     setError(null);
-    setUploading(true);
+    const failed: string[] = [];
+    for (const [i, file] of files.entries()) {
+      setUpload({ done: i, total: files.length });
+      try {
+        const fd = new FormData();
+        fd.set("galleryId", String(gallery.id));
+        fd.set("file", file);
+        await uploadPhoto({ data: fd });
+      } catch {
+        failed.push(file.name);
+      }
+    }
+    setUpload(null);
+    await load();
+    if (failed.length > 0) {
+      setError(
+        `Couldn't upload ${failed.length} photo(s): ${failed.join(", ")}. Please try those again.`,
+      );
+    } else {
+      toast.success(`Uploaded ${files.length} photo${files.length === 1 ? "" : "s"}`);
+    }
+  }
+
+  async function copyLink() {
+    if (!gallery) return;
+    const url = `${window.location.origin}/client/${gallery.slug}`;
     try {
-      const fd = new FormData();
-      fd.set("galleryId", String(gallery.id));
-      fd.set("file", file);
-      await uploadPhoto({ data: fd });
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed. Please try again.");
-    } finally {
-      setUploading(false);
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success("Link copied", { description: url });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Couldn't copy the link", { description: url });
     }
   }
 
@@ -139,6 +166,21 @@ function AdminClientGalleryPage() {
     <>
       <PageIntro eyebrow="Admin" title={gallery.client_name}>
         Link: /client/{gallery.slug}
+        <button
+          type="button"
+          onClick={copyLink}
+          className="ml-3 inline-flex items-center gap-1 text-xs uppercase tracking-[0.18em] text-primary hover:underline"
+        >
+          {copied ? (
+            <>
+              <Check className="size-3.5" /> Copied!
+            </>
+          ) : (
+            <>
+              <Link2 className="size-3.5" /> Copy link
+            </>
+          )}
+        </button>
       </PageIntro>
 
       <div className="container-site flex items-center justify-center gap-6">
@@ -211,18 +253,19 @@ function AdminClientGalleryPage() {
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-serif text-2xl">Photos</h2>
             <label className="btn-outline cursor-pointer text-xs">
-              {uploading ? (
-                "Uploading…"
+              {upload ? (
+                `Uploading ${upload.done + 1} of ${upload.total}…`
               ) : (
                 <>
-                  <Upload className="mr-2 inline size-4" /> Upload photo
+                  <Upload className="mr-2 inline size-4" /> Upload photos
                 </>
               )}
               <input
                 type="file"
                 accept="image/*"
+                multiple
                 className="hidden"
-                disabled={uploading}
+                disabled={upload !== null}
                 onChange={onUpload}
               />
             </label>

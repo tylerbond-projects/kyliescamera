@@ -1,6 +1,8 @@
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { Check } from "lucide-react";
+import { toast } from "sonner";
 import { PageIntro } from "@/components/site/PageIntro";
 import { adminLogout, getAdminStatus } from "@/lib/admin.functions";
 import {
@@ -46,6 +48,7 @@ function AdminClientGalleriesPage() {
   const [creating, setCreating] = useState(false);
   const [slug, setSlug] = useState("");
   const [slugEdited, setSlugEdited] = useState(false);
+  const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -103,9 +106,16 @@ function AdminClientGalleriesPage() {
     navigate({ to: "/admin/login" });
   }
 
-  function copyLink(gallerySlug: string) {
+  async function copyLink(gallerySlug: string) {
     const url = `${window.location.origin}/client/${gallerySlug}`;
-    navigator.clipboard.writeText(url).catch(() => {});
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedSlug(gallerySlug);
+      toast.success("Link copied", { description: url });
+      setTimeout(() => setCopiedSlug((s) => (s === gallerySlug ? null : s)), 2000);
+    } catch {
+      toast.error("Couldn't copy the link", { description: url });
+    }
   }
 
   return (
@@ -217,7 +227,14 @@ function AdminClientGalleriesPage() {
                       onClick={() => copyLink(g.slug)}
                       className="text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground"
                     >
-                      Copy link
+                      {copiedSlug === g.slug ? (
+                        <span className="text-primary">
+                          <Check className="mr-1 inline size-3.5" />
+                          Copied!
+                        </span>
+                      ) : (
+                        "Copy link"
+                      )}
                     </button>
                     <Link
                       to="/admin/client-galleries/$id"

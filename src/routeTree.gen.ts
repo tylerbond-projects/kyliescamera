@@ -21,6 +21,7 @@ import { Route as AdminPhotosRouteImport } from './routes/admin/photos'
 import { Route as ClientSlugRouteImport } from './routes/client.$slug'
 import { Route as AdminClientGalleriesIndexRouteImport } from './routes/admin/client-galleries/index'
 import { Route as AdminClientGalleriesIdRouteImport } from './routes/admin/client-galleries/$id'
+import { Route as ApiClientPhotoSlugPhotoIdRouteImport } from './routes/api.client-photo.$slug.$photoId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -83,6 +84,12 @@ const AdminClientGalleriesIdRoute = AdminClientGalleriesIdRouteImport.update({
   path: '/admin/client-galleries/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiClientPhotoSlugPhotoIdRoute =
+  ApiClientPhotoSlugPhotoIdRouteImport.update({
+    id: '/api/client-photo/$slug/$photoId',
+    path: '/api/client-photo/$slug/$photoId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/admin/client-galleries/$id': typeof AdminClientGalleriesIdRoute
   '/admin/client-galleries/': typeof AdminClientGalleriesIndexRoute
+  '/api/client-photo/$slug/$photoId': typeof ApiClientPhotoSlugPhotoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -111,6 +119,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/admin/client-galleries/$id': typeof AdminClientGalleriesIdRoute
   '/admin/client-galleries': typeof AdminClientGalleriesIndexRoute
+  '/api/client-photo/$slug/$photoId': typeof ApiClientPhotoSlugPhotoIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -126,6 +135,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/admin/client-galleries/$id': typeof AdminClientGalleriesIdRoute
   '/admin/client-galleries/': typeof AdminClientGalleriesIndexRoute
+  '/api/client-photo/$slug/$photoId': typeof ApiClientPhotoSlugPhotoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/admin/client-galleries/$id'
     | '/admin/client-galleries/'
+    | '/api/client-photo/$slug/$photoId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -156,6 +167,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin/client-galleries/$id'
     | '/admin/client-galleries'
+    | '/api/client-photo/$slug/$photoId'
   id:
     | '__root__'
     | '/'
@@ -170,6 +182,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/admin/client-galleries/$id'
     | '/admin/client-galleries/'
+    | '/api/client-photo/$slug/$photoId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -185,6 +198,7 @@ export interface RootRouteChildren {
   AdminIndexRoute: typeof AdminIndexRoute
   AdminClientGalleriesIdRoute: typeof AdminClientGalleriesIdRoute
   AdminClientGalleriesIndexRoute: typeof AdminClientGalleriesIndexRoute
+  ApiClientPhotoSlugPhotoIdRoute: typeof ApiClientPhotoSlugPhotoIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -273,6 +287,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminClientGalleriesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/client-photo/$slug/$photoId': {
+      id: '/api/client-photo/$slug/$photoId'
+      path: '/api/client-photo/$slug/$photoId'
+      fullPath: '/api/client-photo/$slug/$photoId'
+      preLoaderRoute: typeof ApiClientPhotoSlugPhotoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -289,6 +310,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminIndexRoute: AdminIndexRoute,
   AdminClientGalleriesIdRoute: AdminClientGalleriesIdRoute,
   AdminClientGalleriesIndexRoute: AdminClientGalleriesIndexRoute,
+  ApiClientPhotoSlugPhotoIdRoute: ApiClientPhotoSlugPhotoIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

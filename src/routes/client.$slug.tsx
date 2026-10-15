@@ -1,7 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Download } from "lucide-react";
-import { getClientGalleryBySlug } from "@/lib/client-galleries.functions";
+import { ChevronLeft, ChevronRight, Download, X } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { getClientGalleryBySlug, type ClientGalleryPhoto } from "@/lib/client-galleries.functions";
+import { photoFilename } from "@/lib/r2";
 import { SITE } from "@/lib/site";
+import { buildZip, uniqueNames } from "@/lib/zip";
 
 export const Route = createFileRoute("/client/$slug")({
   loader: async ({ params }) => {
@@ -17,8 +21,15 @@ export const Route = createFileRoute("/client/$slug")({
   component: ClientGalleryPage,
 });
 
+// Same-origin copy of a photo (see routes/api.client-photo.$slug.$photoId.ts).
+function photoRoute(slug: string, photo: ClientGalleryPhoto, download = false) {
+  return `/api/client-photo/${slug}/${photo.id}${download ? "?download=1" : ""}`;
+}
+
 function ClientGalleryPage() {
   const { result } = Route.useLoaderData();
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [zipProgress, setZipProgress] = useState<{ done: number; total: number } | null>(null);
 
   if (!result) {
     return (
@@ -37,6 +48,34 @@ function ClientGalleryPage() {
 
   const { gallery, photos } = result;
 
+  async function downloadAll() {
+    setZipProgress({ done: 0, total: photos.length });
+    try {
+      const names = uniqueNames(photos.map((p) => photoFilename(p.url)));
+      const files: { name: string; data: Uint8Array<ArrayBuffer> }[] = [];
+      for (const [i, photo] of photos.entries()) {
+        const res = await fetch(photoRoute(gallery.slug, photo));
+        if (!res.ok) throw new Error(`Photo ${i + 1} failed to download.`);
+        files.push({ name: names[i]!, data: new Uint8Array(await res.arrayBuffer()) });
+        setZipProgress({ done: i + 1, total: photos.length });
+      }
+      const url = URL.createObjectURL(buildZip(files));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${gallery.slug}-photos.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch {
+      toast.error("The download didn't finish", {
+        description: "Please try again, or download photos one at a time.",
+      });
+    } finally {
+      setZipProgress(null);
+    }
+  }
+
   return (
     <>
       <section className="container-site pb-10 pt-16 text-center md:pt-24">
@@ -48,9 +87,22 @@ function ClientGalleryPage() {
           </p>
         )}
         {photos.length > 0 && (
-          <p className="mt-4 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            Click any photo to download the full-resolution file.
-          </p>
+          <>
+            <button
+              type="button"
+              onClick={downloadAll}
+              disabled={zipProgress !== null}
+              className="btn-primary mt-8 text-xs"
+            >
+              <Download className="mr-2 inline size-4" />
+              {zipProgress
+                ? `Preparing ${zipProgress.done} of ${zipProgress.total}…`
+                : `Download all (${photos.length})`}
+            </button>
+            <p className="mt-4 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+              Click any photo to view it larger and download it.
+            </p>
+          </>
         )}
       </section>
 
@@ -61,26 +113,145 @@ function ClientGalleryPage() {
           </p>
         ) : (
           <div className="columns-2 gap-4 md:columns-3 [&>*]:mb-4">
-            {photos.map((p) => (
-              <a
+            {photos.map((p, i) => (
+              <button
                 key={p.id}
-                href={p.url}
-                className="group relative block break-inside-avoid overflow-hidden rounded-md"
+                type="button"
+                onClick={() => setOpenIndex(i)}
+                className="group relative block w-full break-inside-avoid overflow-hidden rounded-md"
+                aria-label={`View photo ${i + 1}`}
               >
                 <img
                   src={p.url}
                   alt={p.caption ?? ""}
                   loading="lazy"
-                  className="w-full object-cover"
+                  className="w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 flex items-center justify-center bg-ink/0 opacity-0 transition-all group-hover:bg-ink/40 group-hover:opacity-100">
-                  <Download className="size-8 text-primary-foreground" />
-                </div>
-              </a>
+              </button>
             ))}
           </div>
         )}
       </div>
+
+      {openIndex !== null && (
+        <Lightbox
+          photos={photos}
+          index={Math.min(openIndex, photos.length - 1)}
+          slug={gallery.slug}
+          onIndexChange={setOpenIndex}
+          onClose={() => setOpenIndex(null)}
+        />
+      )}
     </>
+  );
+}
+
+function Lightbox({
+  photos,
+  index,
+  slug,
+  onIndexChange,
+  onClose,
+}: {
+  photos: ClientGalleryPhoto[];
+  index: number;
+  slug: string;
+  onIndexChange: (i: number) => void;
+  onClose: () => void;
+}) {
+  const photo = photos[index]!;
+  const hasMany = photos.length > 1;
+  const prev = useCallback(
+    () => onIndexChange((index - 1 + photos.length) % photos.length),
+    [index, photos.length, onIndexChange],
+  );
+  const next = useCallback(
+    () => onIndexChange((index + 1) % photos.length),
+    [index, photos.length, onIndexChange],
+  );
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+      else if (e.key === "ArrowLeft" && hasMany) prev();
+      else if (e.key === "ArrowRight" && hasMany) next();
+    }
+    window.addEventListener("keydown", onKey);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = overflow;
+    };
+  }, [onClose, prev, next, hasMany]);
+
+  const iconButton =
+    "flex size-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/25";
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Photo ${index + 1} of ${photos.length}`}
+      className="fixed inset-0 z-50 flex flex-col bg-black/90 animate-fade-in"
+      onClick={onClose}
+    >
+      <div
+        className="flex items-center justify-between gap-3 p-4 text-white"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <span className="text-xs uppercase tracking-[0.18em] text-white/70">
+          {index + 1} / {photos.length}
+        </span>
+        <div className="flex items-center gap-3">
+          <a
+            href={photoRoute(slug, photo, true)}
+            download={photoFilename(photo.url)}
+            className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-xs uppercase tracking-[0.18em] text-black transition-colors hover:bg-white/85"
+          >
+            <Download className="size-4" /> Download
+          </a>
+          <button type="button" onClick={onClose} aria-label="Close" className={iconButton}>
+            <X className="size-5" />
+          </button>
+        </div>
+      </div>
+
+      <div className="relative flex min-h-0 flex-1 items-center justify-center px-4 pb-6 md:px-20">
+        <img
+          key={photo.id}
+          src={photo.url}
+          alt={photo.caption ?? ""}
+          className="max-h-full max-w-full object-contain animate-fade-in"
+          onClick={(e) => e.stopPropagation()}
+        />
+        {hasMany && (
+          <>
+            <button
+              type="button"
+              aria-label="Previous photo"
+              onClick={(e) => {
+                e.stopPropagation();
+                prev();
+              }}
+              className={`${iconButton} absolute left-2 top-1/2 -translate-y-1/2 md:left-6`}
+            >
+              <ChevronLeft className="size-6" />
+            </button>
+            <button
+              type="button"
+              aria-label="Next photo"
+              onClick={(e) => {
+                e.stopPropagation();
+                next();
+              }}
+              className={`${iconButton} absolute right-2 top-1/2 -translate-y-1/2 md:right-6`}
+            >
+              <ChevronRight className="size-6" />
+            </button>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
