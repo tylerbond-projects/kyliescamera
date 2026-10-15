@@ -338,6 +338,8 @@ function TestimonialsCarousel({ testimonials }: { testimonials: typeof TESTIMONI
                 <img
                   src={t.photo.src}
                   alt={t.photo.alt}
+                  loading="lazy"
+                  decoding="async"
                   className="absolute inset-0 size-full object-cover"
                 />
                 <div className="absolute inset-0 bg-ink/65" />
