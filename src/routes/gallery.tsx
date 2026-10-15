@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { PageIntro } from "@/components/site/PageIntro";
 import { SHOOT_TYPES, MISC_PRICING } from "@/lib/site";
-import { CATEGORY_IMAGES } from "@/lib/images";
+import { DEFAULT_GALLERY_PHOTOS } from "@/lib/images";
 import { listGalleryPhotos } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/gallery")({
@@ -28,12 +28,8 @@ export const Route = createFileRoute("/gallery")({
 });
 
 const CATEGORIES = [
-  ...SHOOT_TYPES.map((t) => ({
-    slug: t.slug as string,
-    name: t.name,
-    placeholder: CATEGORY_IMAGES[t.slug],
-  })),
-  ...MISC_PRICING.items.map((i) => ({ slug: i.slug, name: i.name, placeholder: undefined })),
+  ...SHOOT_TYPES.map((t) => ({ slug: t.slug as string, name: t.name })),
+  ...MISC_PRICING.items.map((i) => ({ slug: i.slug, name: i.name })),
 ];
 
 function GalleryPage() {
@@ -46,30 +42,29 @@ function GalleryPage() {
       if (real.length > 0) {
         return real.map((p) => ({ id: String(p.id), slug: cat.slug, name: cat.name, src: p.url }));
       }
-      if (!cat.placeholder) return [];
-      return [0, 1, 2].map((n) => ({
+      return (DEFAULT_GALLERY_PHOTOS[cat.slug] ?? []).map((src, n) => ({
         id: `${cat.slug}-${n}`,
         slug: cat.slug,
         name: cat.name,
-        src: cat.placeholder as string,
+        src,
       }));
     });
   }, [dbPhotos]);
 
   const filtered = active === "all" ? items : items.filter((i) => i.slug === active);
-  const hasAnyRealPhotos = dbPhotos.length > 0;
 
   return (
     <>
       <PageIntro eyebrow="Portfolio" title="The Gallery" script="a few favorites">
-        {hasAnyRealPhotos
-          ? "Browse by session type."
-          : "Browse by session type. These are placeholder samples for now — real sessions coming soon."}
+        Browse by session type.
       </PageIntro>
 
       <div className="container-site">
         <div className="mb-10 flex flex-wrap justify-center gap-2">
-          {[{ slug: "all", name: "All" }, ...CATEGORIES].map((c) => (
+          {[
+            { slug: "all", name: "All" },
+            ...CATEGORIES.filter((c) => items.some((i) => i.slug === c.slug)),
+          ].map((c) => (
             <button
               key={c.slug}
               type="button"

@@ -11,18 +11,18 @@ import heroImg from "@/assets/hero.jpg";
 import portraitImg from "@/assets/portrait.jpg";
 import danceImg from "@/assets/dance.jpg";
 import sportsImg from "@/assets/sports.jpg";
-import missionaryImg from "@/assets/missionary.jpg";
-import familyImg from "@/assets/family.jpg";
+import friendsImg from "@/assets/gallery/friends-1.jpg";
+import missionaryImg from "@/assets/gallery/missionary-1.jpg";
 
 // Placeholder — swap for a real photo of Kylie whenever it's ready.
 const funFactsImg = portraitImg;
 
-// The four full sessions plus the four Misc. Pricing items — misc items
-// don't have gallery photos yet, so these reuse the closest category shot
-// unless the admin has set one directly on the session.
+// The four full sessions plus the four Misc. Pricing items — Friends and
+// Missionary use Kylie's own photos; School Dances and Game Day are still
+// placeholders. An image the admin sets on the session overrides these.
 const MISC_STRIP_IMAGES: Record<string, string> = {
   "School Dances": danceImg,
-  Friends: familyImg,
+  Friends: friendsImg,
   "Game Day": sportsImg,
   "Missionary Homecoming": missionaryImg,
 };
