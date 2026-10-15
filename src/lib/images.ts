@@ -2,9 +2,6 @@ import portrait from "@/assets/portrait.jpg";
 import couple from "@/assets/couple.jpg";
 import family from "@/assets/family.jpg";
 import wedding from "@/assets/wedding.jpg";
-import dance from "@/assets/dance.jpg";
-import sports from "@/assets/sports.jpg";
-import missionary from "@/assets/missionary.jpg";
 import type { ShootSlug } from "./site";
 
 export const CATEGORY_IMAGES: Record<ShootSlug, string> = {
@@ -12,7 +9,4 @@ export const CATEGORY_IMAGES: Record<ShootSlug, string> = {
   couple,
   family,
   wedding,
-  dance,
-  sports,
-  missionary,
 };

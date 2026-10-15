@@ -80,17 +80,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Kylie Photography — Utah County, UT" },
+      { title: "Kylie's Camera — Utah County, UT" },
       { name: "description", content: "Authentic, heartfelt photography in Utah County. Capturing moments since 2024." },
-      { name: "author", content: "Kylie Photography" },
-      { property: "og:title", content: "Kylie Photography" },
+      { name: "author", content: "Kylie's Camera" },
+      { property: "og:title", content: "Kylie's Camera" },
       { property: "og:description", content: "Authentic, heartfelt photography in Utah County." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      { rel: "icon", href: "/favicon.ico", sizes: "any" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {

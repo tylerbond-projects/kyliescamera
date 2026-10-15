@@ -9,20 +9,41 @@ function TikTokIcon({ className }: { className?: string }) {
   );
 }
 
+function PinterestIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M12 2C6.48 2 2 6.48 2 12c0 4.24 2.63 7.86 6.35 9.32-.09-.79-.17-2.01.03-2.88.19-.79 1.22-5.06 1.22-5.06s-.31-.62-.31-1.55c0-1.45.84-2.53 1.89-2.53.89 0 1.32.67 1.32 1.47 0 .9-.57 2.24-.87 3.48-.25 1.04.52 1.89 1.54 1.89 1.85 0 3.1-2.38 3.1-5.2 0-2.14-1.44-3.75-4.07-3.75-2.97 0-4.82 2.21-4.82 4.68 0 .85.25 1.45.64 1.91.18.21.21.3.14.55-.05.19-.16.63-.21.8-.07.26-.28.36-.51.26-1.43-.58-2.1-2.14-2.1-3.9 0-2.9 2.44-6.38 7.28-6.38 3.89 0 6.45 2.82 6.45 5.84 0 4-2.22 6.99-5.5 6.99-1.1 0-2.14-.6-2.49-1.28l-.68 2.68c-.21.85-.63 1.7-1.02 2.36.9.27 1.85.42 2.83.42 5.52 0 10-4.48 10-10S17.52 2 12 2Z" />
+    </svg>
+  );
+}
+
 const ICONS = {
   Instagram: Instagram,
   Facebook: Facebook,
   TikTok: TikTokIcon,
+  Pinterest: PinterestIcon,
 } as const;
 
-export function SocialLinks({ size = "sm" }: { size?: "sm" | "lg" }) {
+export function SocialLinks({
+  size = "sm",
+  nowrap = false,
+}: {
+  size?: "sm" | "lg";
+  nowrap?: boolean;
+}) {
   const large = size === "lg";
   return (
-    <ul className={large ? "flex flex-wrap justify-center gap-6" : "flex gap-3"}>
+    <ul
+      className={
+        large
+          ? `flex justify-center gap-2 sm:gap-6 ${nowrap ? "flex-nowrap" : "flex-wrap"}`
+          : "flex gap-3"
+      }
+    >
       {SITE.socials.map((s) => {
         const Icon = ICONS[s.label as keyof typeof ICONS];
         return (
-          <li key={s.label}>
+          <li key={s.label} className={large && nowrap ? "min-w-0 flex-1" : undefined}>
             <a
               href={s.href}
               target="_blank"
@@ -30,15 +51,17 @@ export function SocialLinks({ size = "sm" }: { size?: "sm" | "lg" }) {
               aria-label={s.label}
               className={
                 large
-                  ? "flex flex-col items-center gap-3 rounded-2xl border border-border bg-card px-8 py-6 text-center shadow-card transition-transform hover:-translate-y-1"
-                  : "flex size-10 items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+                  ? "flex flex-col items-center gap-1.5 rounded-2xl border border-border bg-card px-2 py-4 text-center shadow-card transition-transform hover:-translate-y-1 sm:gap-3 sm:px-8 sm:py-6"
+                  : "flex size-7 items-center justify-center text-muted-foreground transition-colors hover:text-primary"
               }
             >
-              <Icon className={large ? "size-7 text-primary" : "size-4"} />
+              <Icon className={large ? "size-5 text-primary sm:size-7" : "size-4"} />
               {large && (
                 <>
-                  <span className="font-serif text-xl">{s.label}</span>
-                  <span className="text-xs text-muted-foreground">{s.handle}</span>
+                  <span className="font-serif text-sm leading-tight sm:text-xl">{s.label}</span>
+                  <span className="break-words text-[10px] leading-tight text-muted-foreground sm:text-xs">
+                    {s.handle}
+                  </span>
                 </>
               )}
             </a>

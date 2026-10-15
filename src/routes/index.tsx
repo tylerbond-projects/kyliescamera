@@ -1,22 +1,57 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Quote } from "lucide-react";
-import { SITE, FUN_FACTS, TESTIMONIALS, SHOOT_TYPES } from "@/lib/site";
+import { ArrowRight } from "lucide-react";
+import { useCallback, useEffect, useRef } from "react";
+import useEmblaCarousel from "embla-carousel-react";
+import { SITE, HERO, BIO, FUN_FACTS, TESTIMONIALS, SHOOT_TYPES, MISC_PRICING } from "@/lib/site";
 import { SocialLinks } from "@/components/site/SocialLinks";
 import { CATEGORY_IMAGES } from "@/lib/images";
+import { cn } from "@/lib/utils";
+import { getSiteContentMap } from "@/lib/content.functions";
 import heroImg from "@/assets/hero.jpg";
 import portraitImg from "@/assets/portrait.jpg";
+import danceImg from "@/assets/dance.jpg";
+import sportsImg from "@/assets/sports.jpg";
+import missionaryImg from "@/assets/missionary.jpg";
+import familyImg from "@/assets/family.jpg";
+
+// Placeholder — swap for a real photo of Kylie whenever it's ready.
+const funFactsImg = portraitImg;
+
+// The four full sessions plus the four Misc. Pricing items — misc items
+// don't have gallery photos yet, so these reuse the closest category shot
+// unless the admin has set one directly on the session.
+const MISC_STRIP_IMAGES: Record<string, string> = {
+  "School Dances": danceImg,
+  Friends: familyImg,
+  "Game Day": sportsImg,
+  "Missionary Homecoming": missionaryImg,
+};
+
+// Admin-uploaded photo, additive on top of the default shapes -- see the
+// matching note in /admin/content.tsx. Misc items only ever get a photo
+// here (the homepage strip); the pricing page's Misc. Pricing cards stay
+// text-only by design.
+type ShootTypeWithImage = (typeof SHOOT_TYPES)[number] & { image?: string };
+type MiscItemWithImage = (typeof MISC_PRICING)["items"][number] & { image?: string };
 
 export const Route = createFileRoute("/")({
+  loader: async () => {
+    const content = await getSiteContentMap().catch(() => ({}) as Record<string, unknown>);
+    return { content };
+  },
   head: () => ({
     meta: [
-      { title: "Kylie Photography — Authentic, Heartfelt Photography in Utah County" },
+      { title: "Kylie's Camera — Authentic, Heartfelt Photography in Utah County" },
       {
         name: "description",
         content:
           "Warm, candid portrait, couple, family, wedding, dance, and sports photography in Utah County, UT. Capturing moments since 2024.",
       },
-      { property: "og:title", content: "Kylie Photography — Authentic, Heartfelt Photography" },
-      { property: "og:description", content: "Warm, candid photography in Utah County, UT. Capturing moments since 2024." },
+      { property: "og:title", content: "Kylie's Camera — Authentic, Heartfelt Photography" },
+      {
+        property: "og:description",
+        content: "Warm, candid photography in Utah County, UT. Capturing moments since 2024.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -25,12 +60,40 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
+  const { content } = Route.useLoaderData();
+  const hero = (content["hero"] as { heading?: string; image?: string } | undefined) ?? {};
+  const heroHeading = hero.heading || HERO.heading;
+  const heroImage = hero.image || heroImg;
+  const images = (content["images"] as { bio?: string; funFacts?: string } | undefined) ?? {};
+  const bioImage = images.bio || portraitImg;
+  const funFactsImage = images.funFacts || funFactsImg;
+  const bio = (content["bio"] as typeof BIO | undefined) ?? BIO;
+  const funFacts = (content["fun_facts"] as typeof FUN_FACTS | undefined) ?? FUN_FACTS;
+  const testimonials = (content["testimonials"] as typeof TESTIMONIALS | undefined) ?? TESTIMONIALS;
+  const shootTypes: readonly ShootTypeWithImage[] =
+    (content["shoot_types"] as ShootTypeWithImage[] | undefined) ?? SHOOT_TYPES;
+  const miscPricing: { title: string; blurb: string; items: readonly MiscItemWithImage[] } =
+    (content["misc_pricing"] as
+      { title: string; blurb: string; items: MiscItemWithImage[] } | undefined) ?? MISC_PRICING;
+  const shootStrip = [
+    ...shootTypes.map((t) => ({
+      name: t.name,
+      slug: t.slug,
+      image: t.image || CATEGORY_IMAGES[t.slug],
+    })),
+    ...miscPricing.items.map((item) => ({
+      name: item.name,
+      slug: item.slug,
+      image: item.image || MISC_STRIP_IMAGES[item.name],
+    })),
+  ];
+
   return (
     <>
       {/* Hero */}
       <section className="relative flex min-h-[88vh] items-end overflow-hidden">
         <img
-          src={heroImg}
+          src={heroImage}
           alt="Couple embracing in a golden field at sunset"
           width={1920}
           height={1152}
@@ -40,7 +103,7 @@ function HomePage() {
         <div className="container-site relative pb-20 text-primary-foreground md:pb-28">
           <p className="eyebrow text-primary-foreground/80 animate-fade-up">{SITE.location}</p>
           <h1 className="mt-4 max-w-3xl text-5xl leading-[1.05] animate-fade-up md:text-7xl">
-            Authentic, Heartfelt <em className="font-normal italic">Photography.</em>
+            {heroHeading}
           </h1>
           <p className="font-script mt-4 text-3xl animate-fade-up md:text-4xl">{SITE.tagline}</p>
           <div className="mt-8 flex flex-wrap gap-3 animate-fade-up">
@@ -59,7 +122,7 @@ function HomePage() {
         <div className="relative mx-auto w-full max-w-md">
           <div className="absolute -inset-3 -rotate-2 rounded-lg bg-blush" />
           <img
-            src={portraitImg}
+            src={bioImage}
             alt="Kylie laughing outdoors"
             width={1024}
             height={1280}
@@ -68,16 +131,20 @@ function HomePage() {
           />
         </div>
         <div>
-          <p className="eyebrow">Hi, I'm Kylie</p>
-          <h2 className="mt-4 text-4xl md:text-5xl">
-            I photograph the in-between moments — the ones you'll want to remember forever.
-          </h2>
-          <p className="mt-6 leading-relaxed text-muted-foreground">
-            I'm a Utah County photographer who believes the best photos happen when you forget the
-            camera is there. My sessions are relaxed, a little playful, and full of golden light.
-            Whether it's your family, your love story, or a homecoming years in the making, I'd be
-            honored to capture it.
-          </p>
+          <p className="eyebrow">{bio.eyebrow}</p>
+          <h2 className="mt-4 text-4xl md:text-5xl">{bio.header}</h2>
+          {bio.paragraphs.map((p, i) => (
+            <p
+              key={i}
+              className={
+                i === 0
+                  ? "mt-6 leading-relaxed text-muted-foreground"
+                  : "mt-4 leading-relaxed text-muted-foreground"
+              }
+            >
+              {p}
+            </p>
+          ))}
           <Link to="/contact" className="btn-primary mt-8">
             Contact me
           </Link>
@@ -92,23 +159,33 @@ function HomePage() {
               <p className="eyebrow">What I shoot</p>
               <h2 className="mt-3 text-4xl">Sessions for every season of life</h2>
             </div>
-            <Link to="/pricing" className="hidden text-xs uppercase tracking-[0.2em] hover:text-primary md:block">
+            <Link
+              to="/pricing"
+              className="hidden text-xs uppercase tracking-[0.2em] hover:text-primary md:block"
+            >
               Info & pricing →
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {SHOOT_TYPES.slice(0, 4).map((t) => (
-              <Link key={t.slug} to="/gallery" className="group relative overflow-hidden rounded-md">
+            {shootStrip.map((s) => (
+              <Link
+                key={s.name}
+                to="/pricing"
+                hash={s.slug}
+                className="group relative overflow-hidden rounded-md"
+              >
                 <img
-                  src={CATEGORY_IMAGES[t.slug]}
-                  alt={t.name}
+                  src={s.image}
+                  alt={s.name}
                   width={1024}
                   height={1280}
                   loading="lazy"
                   className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="hero-overlay absolute inset-0" />
-                <p className="absolute bottom-4 left-4 font-serif text-2xl text-primary-foreground">{t.name}</p>
+                <p className="absolute bottom-4 left-4 font-serif text-2xl text-primary-foreground">
+                  {s.name}
+                </p>
               </Link>
             ))}
           </div>
@@ -121,15 +198,29 @@ function HomePage() {
           <p className="eyebrow">Get to know me</p>
           <h2 className="mt-3 text-4xl md:text-5xl">Fun facts about me</h2>
         </div>
-        <ol className="mx-auto mt-14 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-5">
-          {FUN_FACTS.map((f, i) => (
-            <li key={f.title} className="text-center">
-              <span className="font-script text-5xl text-primary">{String(i + 1).padStart(2, "0")}</span>
-              <h3 className="mt-2 text-xl">{f.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.text}</p>
-            </li>
-          ))}
-        </ol>
+        <div className="mx-auto mt-14 grid max-w-5xl items-center gap-12 md:grid-cols-[1fr_auto_1fr] md:gap-10">
+          <ul className="grid gap-10 text-center sm:grid-cols-2 md:grid-cols-1 md:text-right">
+            {funFacts.slice(0, 3).map((f) => (
+              <FunFact key={f.title} fact={f} />
+            ))}
+          </ul>
+          <div className="relative order-first mx-auto w-64 shrink-0 sm:w-72 md:order-none md:w-80 lg:w-96">
+            <div className="absolute -inset-3 rotate-2 rounded-lg bg-blush" />
+            <img
+              src={funFactsImage}
+              alt="Kylie"
+              width={600}
+              height={900}
+              loading="lazy"
+              className="relative aspect-[2/3] w-full rounded-md object-cover shadow-soft"
+            />
+          </div>
+          <ul className="grid gap-10 text-center sm:grid-cols-2 md:grid-cols-1 md:text-left">
+            {funFacts.slice(3).map((f) => (
+              <FunFact key={f.title} fact={f} />
+            ))}
+          </ul>
+        </div>
       </section>
 
       {/* Testimonials */}
@@ -139,21 +230,7 @@ function HomePage() {
             <p className="eyebrow">Kind words</p>
             <h2 className="mt-3 text-4xl md:text-5xl">From past clients</h2>
           </div>
-          <div className="mt-12 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-6 [scrollbar-width:thin]">
-            {TESTIMONIALS.map((t) => (
-              <figure
-                key={t.name}
-                className="min-w-[85%] snap-center rounded-lg bg-card p-8 shadow-card sm:min-w-[60%] lg:min-w-[calc(33.333%-1rem)]"
-              >
-                <Quote className="size-6 text-primary" />
-                <blockquote className="mt-4 font-serif text-xl leading-relaxed italic">"{t.quote}"</blockquote>
-                <figcaption className="mt-6 text-sm">
-                  <span className="font-medium">{t.name}</span>
-                  <span className="text-muted-foreground"> · {t.session}</span>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
+          <TestimonialsCarousel testimonials={testimonials} />
         </div>
       </section>
 
@@ -169,5 +246,101 @@ function HomePage() {
         </div>
       </section>
     </>
+  );
+}
+
+function FunFact({ fact }: { fact: { title: string; text: string } }) {
+  return (
+    <li>
+      <h3 className="text-2xl uppercase tracking-wide md:text-3xl">{fact.title}</h3>
+      <p className="mt-2 text-lg uppercase leading-relaxed text-muted-foreground md:text-xl">
+        {fact.text}
+      </p>
+    </li>
+  );
+}
+
+function TestimonialsCarousel({ testimonials }: { testimonials: typeof TESTIMONIALS }) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+  const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const stop = useCallback(() => {
+    if (autoplayRef.current) {
+      clearInterval(autoplayRef.current);
+      autoplayRef.current = null;
+    }
+  }, []);
+
+  const start = useCallback(() => {
+    stop();
+    if (!emblaApi) return;
+    autoplayRef.current = setInterval(() => emblaApi.scrollNext(), 4000);
+  }, [emblaApi, stop]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    start();
+    emblaApi.on("pointerDown", stop);
+    emblaApi.on("pointerUp", start);
+    return () => {
+      stop();
+      emblaApi.off("pointerDown", stop);
+      emblaApi.off("pointerUp", start);
+    };
+  }, [emblaApi, start, stop]);
+
+  return (
+    <div className="mt-12 overflow-hidden" ref={emblaRef} onMouseEnter={stop} onMouseLeave={start}>
+      {/* gap-6 handles all the real, visible spacing (confirmed correct
+          everywhere except the loop seam). Embla's loop-boundary math
+          (measureEndGap in its source) separately reads the LAST slide's
+          `margin-right` via getComputedStyle to size the wrap-around --
+          it's blind to `gap` entirely -- so that one slide also gets an
+          (invisible during normal scrolling) trailing margin, purely to
+          feed Embla the number it's looking for, without touching how any
+          other slide is spaced. */}
+      <div className="flex gap-6">
+        {testimonials.map((t, i) => (
+          <figure
+            key={t.name}
+            className={cn(
+              "relative aspect-[8/5] min-w-[85%] shrink-0 overflow-hidden rounded-lg p-8 shadow-card sm:min-w-[60%] lg:min-w-[calc(33.333%-1.5rem)]",
+              i === testimonials.length - 1 && "mr-6",
+              !t.photo && "bg-card",
+            )}
+          >
+            {t.photo && (
+              <>
+                <img
+                  src={t.photo.src}
+                  alt={t.photo.alt}
+                  className="absolute inset-0 size-full object-cover"
+                />
+                <div className="absolute inset-0 bg-ink/65" />
+              </>
+            )}
+            <div className="relative flex h-full flex-col justify-center">
+              <blockquote
+                className={cn(
+                  "font-serif text-xl leading-relaxed italic",
+                  t.photo && "text-primary-foreground",
+                )}
+              >
+                "{t.quote}"
+              </blockquote>
+              <figcaption className="mt-6 text-sm">
+                <span className={cn("font-medium", t.photo && "text-primary-foreground")}>
+                  {t.name}
+                </span>
+                <span className={t.photo ? "text-primary-foreground/75" : "text-muted-foreground"}>
+                  {" "}
+                  · {t.session}
+                </span>
+              </figcaption>
+            </div>
+          </figure>
+        ))}
+      </div>
+    </div>
   );
 }

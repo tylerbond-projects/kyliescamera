@@ -3,14 +3,22 @@ import * as Accordion from "@radix-ui/react-accordion";
 import { Plus } from "lucide-react";
 import { PageIntro } from "@/components/site/PageIntro";
 import { FAQS } from "@/lib/site";
+import { getSiteContentMap } from "@/lib/content.functions";
 
 export const Route = createFileRoute("/faq")({
+  loader: async () => {
+    const content = await getSiteContentMap().catch(() => ({}) as Record<string, unknown>);
+    return { content };
+  },
   head: () => ({
     meta: [
-      { title: "FAQ — Kylie Photography" },
-      { name: "description", content: "Answers about turnaround time, deposits, what to wear, and travel fees for sessions with Kylie Photography." },
-      { property: "og:title", content: "FAQ — Kylie Photography" },
-      { property: "og:description", content: "Turnaround time, deposits, what to wear, and travel." },
+      { title: "FAQ — Kylie's Camera" },
+      {
+        name: "description",
+        content: "Answers about travel fees and posing help for sessions with Kylie's Camera.",
+      },
+      { property: "og:title", content: "FAQ — Kylie's Camera" },
+      { property: "og:description", content: "Travel fees and posing help." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -19,6 +27,9 @@ export const Route = createFileRoute("/faq")({
 });
 
 function FaqPage() {
+  const { content } = Route.useLoaderData();
+  const faqs = (content["faqs"] as typeof FAQS | undefined) ?? FAQS;
+
   return (
     <>
       <PageIntro eyebrow="Good to know" title="Frequently Asked Questions" script="before we shoot">
@@ -26,8 +37,12 @@ function FaqPage() {
       </PageIntro>
 
       <div className="container-site max-w-3xl">
-        <Accordion.Root type="single" collapsible className="divide-y divide-border border-y border-border">
-          {FAQS.map((f, i) => (
+        <Accordion.Root
+          type="single"
+          collapsible
+          className="divide-y divide-border border-y border-border"
+        >
+          {faqs.map((f, i) => (
             <Accordion.Item key={f.q} value={`item-${i}`} className="group">
               <Accordion.Header>
                 <Accordion.Trigger className="flex w-full items-center justify-between gap-6 py-6 text-left font-serif text-2xl transition-colors hover:text-primary">

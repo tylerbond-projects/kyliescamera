@@ -14,8 +14,13 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminContentRouteImport } from './routes/admin/content'
+import { Route as AdminLoginRouteImport } from './routes/admin/login'
+import { Route as AdminPhotosRouteImport } from './routes/admin/photos'
 import { Route as ClientSlugRouteImport } from './routes/client.$slug'
-import { Route as ContractSlugRouteImport } from './routes/contract.$slug'
+import { Route as AdminClientGalleriesIndexRouteImport } from './routes/admin/client-galleries/index'
+import { Route as AdminClientGalleriesIdRouteImport } from './routes/admin/client-galleries/$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -42,14 +47,40 @@ const PricingRoute = PricingRouteImport.update({
   path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminContentRoute = AdminContentRouteImport.update({
+  id: '/admin/content',
+  path: '/admin/content',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPhotosRoute = AdminPhotosRouteImport.update({
+  id: '/admin/photos',
+  path: '/admin/photos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ClientSlugRoute = ClientSlugRouteImport.update({
   id: '/client/$slug',
   path: '/client/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ContractSlugRoute = ContractSlugRouteImport.update({
-  id: '/contract/$slug',
-  path: '/contract/$slug',
+const AdminClientGalleriesIndexRoute =
+  AdminClientGalleriesIndexRouteImport.update({
+    id: '/admin/client-galleries/',
+    path: '/admin/client-galleries/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AdminClientGalleriesIdRoute = AdminClientGalleriesIdRouteImport.update({
+  id: '/admin/client-galleries/$id',
+  path: '/admin/client-galleries/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -59,8 +90,13 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/gallery': typeof GalleryRoute
   '/pricing': typeof PricingRoute
+  '/admin/content': typeof AdminContentRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/photos': typeof AdminPhotosRoute
   '/client/$slug': typeof ClientSlugRoute
-  '/contract/$slug': typeof ContractSlugRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/client-galleries/$id': typeof AdminClientGalleriesIdRoute
+  '/admin/client-galleries/': typeof AdminClientGalleriesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -68,8 +104,13 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/gallery': typeof GalleryRoute
   '/pricing': typeof PricingRoute
+  '/admin/content': typeof AdminContentRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/photos': typeof AdminPhotosRoute
   '/client/$slug': typeof ClientSlugRoute
-  '/contract/$slug': typeof ContractSlugRoute
+  '/admin': typeof AdminIndexRoute
+  '/admin/client-galleries/$id': typeof AdminClientGalleriesIdRoute
+  '/admin/client-galleries': typeof AdminClientGalleriesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -78,8 +119,13 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/gallery': typeof GalleryRoute
   '/pricing': typeof PricingRoute
+  '/admin/content': typeof AdminContentRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/photos': typeof AdminPhotosRoute
   '/client/$slug': typeof ClientSlugRoute
-  '/contract/$slug': typeof ContractSlugRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/client-galleries/$id': typeof AdminClientGalleriesIdRoute
+  '/admin/client-galleries/': typeof AdminClientGalleriesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -89,8 +135,13 @@ export interface FileRouteTypes {
     | '/faq'
     | '/gallery'
     | '/pricing'
+    | '/admin/content'
+    | '/admin/login'
+    | '/admin/photos'
     | '/client/$slug'
-    | '/contract/$slug'
+    | '/admin/'
+    | '/admin/client-galleries/$id'
+    | '/admin/client-galleries/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -98,8 +149,13 @@ export interface FileRouteTypes {
     | '/faq'
     | '/gallery'
     | '/pricing'
+    | '/admin/content'
+    | '/admin/login'
+    | '/admin/photos'
     | '/client/$slug'
-    | '/contract/$slug'
+    | '/admin'
+    | '/admin/client-galleries/$id'
+    | '/admin/client-galleries'
   id:
     | '__root__'
     | '/'
@@ -107,8 +163,13 @@ export interface FileRouteTypes {
     | '/faq'
     | '/gallery'
     | '/pricing'
+    | '/admin/content'
+    | '/admin/login'
+    | '/admin/photos'
     | '/client/$slug'
-    | '/contract/$slug'
+    | '/admin/'
+    | '/admin/client-galleries/$id'
+    | '/admin/client-galleries/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -117,8 +178,13 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   GalleryRoute: typeof GalleryRoute
   PricingRoute: typeof PricingRoute
+  AdminContentRoute: typeof AdminContentRoute
+  AdminLoginRoute: typeof AdminLoginRoute
+  AdminPhotosRoute: typeof AdminPhotosRoute
   ClientSlugRoute: typeof ClientSlugRoute
-  ContractSlugRoute: typeof ContractSlugRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminClientGalleriesIdRoute: typeof AdminClientGalleriesIdRoute
+  AdminClientGalleriesIndexRoute: typeof AdminClientGalleriesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -158,6 +224,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/content': {
+      id: '/admin/content'
+      path: '/admin/content'
+      fullPath: '/admin/content'
+      preLoaderRoute: typeof AdminContentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/photos': {
+      id: '/admin/photos'
+      path: '/admin/photos'
+      fullPath: '/admin/photos'
+      preLoaderRoute: typeof AdminPhotosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/client/$slug': {
       id: '/client/$slug'
       path: '/client/$slug'
@@ -165,11 +259,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClientSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/contract/$slug': {
-      id: '/contract/$slug'
-      path: '/contract/$slug'
-      fullPath: '/contract/$slug'
-      preLoaderRoute: typeof ContractSlugRouteImport
+    '/admin/client-galleries/': {
+      id: '/admin/client-galleries/'
+      path: '/admin/client-galleries'
+      fullPath: '/admin/client-galleries/'
+      preLoaderRoute: typeof AdminClientGalleriesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/client-galleries/$id': {
+      id: '/admin/client-galleries/$id'
+      path: '/admin/client-galleries/$id'
+      fullPath: '/admin/client-galleries/$id'
+      preLoaderRoute: typeof AdminClientGalleriesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -181,8 +282,13 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   GalleryRoute: GalleryRoute,
   PricingRoute: PricingRoute,
+  AdminContentRoute: AdminContentRoute,
+  AdminLoginRoute: AdminLoginRoute,
+  AdminPhotosRoute: AdminPhotosRoute,
   ClientSlugRoute: ClientSlugRoute,
-  ContractSlugRoute: ContractSlugRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  AdminClientGalleriesIdRoute: AdminClientGalleriesIdRoute,
+  AdminClientGalleriesIndexRoute: AdminClientGalleriesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

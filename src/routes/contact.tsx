@@ -1,23 +1,38 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { useMutation } from "@tanstack/react-query";
-import { Heart } from "lucide-react";
-import { useState, type FormEvent } from "react";
-import { toast } from "sonner";
+import { Heart, Mail } from "lucide-react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { PageIntro } from "@/components/site/PageIntro";
-import { submitContact, type ContactInput } from "@/lib/booking.functions";
-import { CONTACT_METHODS, HEARD_ABOUT, INTEREST_LEVELS, SHOOT_TYPES, upcomingMonths } from "@/lib/site";
+import { SocialLinks } from "@/components/site/SocialLinks";
+import {
+  CONTACT_METHODS,
+  HEARD_ABOUT,
+  INTEREST_LEVELS,
+  MISC_PRICING,
+  SHOOT_TYPES,
+  SITE,
+  upcomingMonths,
+} from "@/lib/site";
+import { getSiteContentMap } from "@/lib/content.functions";
+import { sendContactMessage } from "@/lib/contact.functions";
 
 export const Route = createFileRoute("/contact")({
   validateSearch: (s: Record<string, unknown>): { type?: string } => {
     const t = s["type"];
     return typeof t === "string" ? { type: t } : {};
   },
+  loader: async () => {
+    const content = await getSiteContentMap().catch(() => ({}) as Record<string, unknown>);
+    return { content };
+  },
   head: () => ({
     meta: [
-      { title: "Contact & Booking — Kylie Photography" },
-      { name: "description", content: "Book a portrait, couple, family, wedding, dance, sports, or homecoming session with Kylie Photography in Utah County." },
-      { property: "og:title", content: "Contact & Booking — Kylie Photography" },
+      { title: "Contact & Booking — Kylie's Camera" },
+      {
+        name: "description",
+        content:
+          "Book a portrait, couple, family, wedding, dance, sports, or homecoming session with Kylie's Camera in Utah County.",
+      },
+      { property: "og:title", content: "Contact & Booking — Kylie's Camera" },
       { property: "og:description", content: "Tell me your vision and let's plan your session." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -30,42 +45,57 @@ const MONTHS = upcomingMonths();
 
 function ContactPage() {
   const { type } = Route.useSearch();
-  const submit = useServerFn(submitContact);
-  const [done, setDone] = useState(false);
+  const { content } = Route.useLoaderData();
+  const shootTypes = (content["shoot_types"] as typeof SHOOT_TYPES | undefined) ?? SHOOT_TYPES;
+  const miscPricing = (content["misc_pricing"] as typeof MISC_PRICING | undefined) ?? MISC_PRICING;
+  const shootOptions = [
+    ...shootTypes.map((t) => t.name),
+    ...miscPricing.items.map((i) => i.name),
+    "Not Sure",
+    "Other",
+  ];
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
-  const mutation = useMutation({
-    mutationFn: (data: ContactInput) => submit({ data }),
-    onSuccess: () => setDone(true),
-    onError: (e: Error) => toast.error(e.message || "Something went wrong. Please try again."),
-  });
-
-  function onSubmit(e: FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const get = (k: string) => String(fd.get(k) ?? "");
-    mutation.mutate({
-      name: get("name"),
-      email: get("email"),
-      phone: get("phone"),
-      interest_level: get("interest_level"),
-      heard_about: get("heard_about"),
-      desired_month: get("desired_month"),
-      shoot_type: get("shoot_type"),
-      vision: get("vision"),
-      socials: get("socials"),
-      preferred_contact: get("preferred_contact") as "Email" | "Text",
-    });
+    const get = (k: string) => String(fd.get(k) ?? "").trim();
+
+    setStatus("sending");
+    try {
+      await sendContactMessage({
+        data: {
+          name: get("name"),
+          email: get("email"),
+          phone: get("phone"),
+          interest_level: get("interest_level"),
+          heard_about: get("heard_about"),
+          desired_month: get("desired_month"),
+          shoot_type: get("shoot_type"),
+          preferred_contact: get("preferred_contact"),
+          socials: get("socials"),
+          vision: get("vision"),
+        },
+      });
+      setStatus("sent");
+    } catch {
+      setStatus("error");
+    }
   }
 
-  if (done) {
+  if (status === "sent") {
     return (
       <section className="container-site flex min-h-[70vh] max-w-xl flex-col items-center justify-center text-center">
         <Heart className="size-10 text-primary" />
-        <h1 className="mt-6 text-5xl">Thank you!</h1>
-        <p className="font-script mt-2 text-3xl text-primary">I can't wait to hear more</p>
+        <h1 className="mt-6 text-5xl">Message sent!</h1>
+        <p className="font-script mt-2 text-3xl text-primary">thank you</p>
         <p className="mt-6 leading-relaxed text-muted-foreground">
-          Your message is on its way. I'll be in touch within 3 days — if you haven't heard back by
-          then, please check your junk/spam folder.
+          Your inquiry is on its way — I'll get back to you within 3 days with availability and next
+          steps. If you don't hear back, feel free to email me directly at{" "}
+          <a href={`mailto:${SITE.email}`} className="text-primary underline underline-offset-4">
+            {SITE.email}
+          </a>
+          .
         </p>
         <Link to="/" className="btn-outline mt-8">
           Back home
@@ -76,8 +106,13 @@ function ContactPage() {
 
   return (
     <>
-      <PageIntro eyebrow="Contact & Booking" title="Let's Make Something Beautiful" script="tell me your vision">
-        Fill out the form below and I'll get back to you within 3 days with availability and next steps.
+      <PageIntro
+        eyebrow="Contact & Booking"
+        title="Let's Craft Memories That Last a Lifetime"
+        script="tell me your vision"
+      >
+        Fill out the form below and I'll get back to you within 3 days with availability and next
+        steps.
       </PageIntro>
 
       <form onSubmit={onSubmit} className="container-site max-w-2xl space-y-10">
@@ -99,7 +134,11 @@ function ContactPage() {
         </Fieldset>
 
         <Fieldset legend="Where are you at?">
-          <RadioGroup name="interest_level" options={INTEREST_LEVELS} defaultValue={INTEREST_LEVELS[0]} />
+          <RadioGroup
+            name="interest_level"
+            options={INTEREST_LEVELS}
+            defaultValue={INTEREST_LEVELS[0]}
+          />
           <Field label="How did you hear about me?">
             <select name="heard_about" className="field" defaultValue="">
               <option value="" disabled>
@@ -114,23 +153,23 @@ function ContactPage() {
 
         <Fieldset legend="The shoot">
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Type of shoot" required>
+            <Field label="What kind of shoot?" required>
               <select
                 name="shoot_type"
                 required
                 className="field"
-                defaultValue={SHOOT_TYPES.find((t) => t.slug === type)?.name ?? ""}
+                defaultValue={shootTypes.find((t) => t.slug === type)?.name ?? ""}
               >
                 <option value="" disabled>
                   Choose one
                 </option>
-                {SHOOT_TYPES.map((t) => (
-                  <option key={t.slug}>{t.name}</option>
+                {shootOptions.map((name) => (
+                  <option key={name}>{name}</option>
                 ))}
               </select>
             </Field>
-            <Field label="Desired month">
-              <select name="desired_month" className="field" defaultValue="">
+            <Field label="Desired month" required>
+              <select name="desired_month" required className="field" defaultValue="">
                 <option value="" disabled>
                   Choose a month
                 </option>
@@ -150,24 +189,60 @@ function ContactPage() {
           </Field>
         </Fieldset>
 
-        <Fieldset legend="Preferred contact method">
-          <RadioGroup name="preferred_contact" options={CONTACT_METHODS} defaultValue="Email" inline />
+        <Fieldset legend="Email or text?">
+          <RadioGroup
+            name="preferred_contact"
+            options={CONTACT_METHODS}
+            defaultValue="Email"
+            inline
+          />
         </Fieldset>
 
-        <div className="rounded-lg bg-blush/60 p-6 text-center">
-          <button type="submit" disabled={mutation.isPending} className="btn-primary w-full sm:w-auto">
-            {mutation.isPending ? "Sending…" : "Send my inquiry"}
+        <div className="rounded-lg bg-blush/60 p-6">
+          <label className="flex cursor-pointer items-start gap-3 text-sm">
+            <input type="checkbox" name="agree" required className="mt-0.5 accent-primary" />
+            <span>I agree: If I haven't seen a response in 3 days, I will check my junk mail.</span>
+          </label>
+          <button
+            type="submit"
+            disabled={status === "sending"}
+            className="btn-primary mt-5 w-full disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          >
+            {status === "sending" ? "Sending…" : "Send my inquiry"}
           </button>
-          <p className="mt-4 text-xs text-muted-foreground">
-            If you haven't heard back within 3 days, please check your junk/spam folder.
-          </p>
+          {status === "error" && (
+            <p className="mt-4 text-sm text-destructive">
+              Something went wrong sending your message. Please try again, or email me directly at{" "}
+              <a href={`mailto:${SITE.email}`} className="underline underline-offset-4">
+                {SITE.email}
+              </a>
+              .
+            </p>
+          )}
         </div>
       </form>
+
+      <section className="container-site mt-24 max-w-xl space-y-12 pb-20 text-center">
+        <div>
+          <Mail className="mx-auto size-8 text-primary" />
+          <a
+            href={`mailto:${SITE.email}`}
+            className="mt-4 block font-serif text-3xl underline-offset-4 hover:text-primary hover:underline"
+          >
+            {SITE.email}
+          </a>
+        </div>
+
+        <div>
+          <p className="eyebrow mb-6">Or find me on social media</p>
+          <SocialLinks size="lg" nowrap />
+        </div>
+      </section>
     </>
   );
 }
 
-function Fieldset({ legend, children }: { legend: string; children: React.ReactNode }) {
+function Fieldset({ legend, children }: { legend: string; children: ReactNode }) {
   return (
     <fieldset className="space-y-5">
       <legend className="mb-5 font-serif text-2xl">{legend}</legend>
@@ -176,10 +251,18 @@ function Fieldset({ legend, children }: { legend: string; children: React.ReactN
   );
 }
 
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+function Field({
+  label,
+  required,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: ReactNode;
+}) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs uppercase tracking-[0.18em] text-muted-foreground">
+      <span className="mb-1.5 block min-h-4 text-xs uppercase tracking-[0.18em] text-muted-foreground">
         {label}
         {required && <span className="text-primary"> *</span>}
       </span>
@@ -206,7 +289,14 @@ function RadioGroup({
           key={o}
           className="flex cursor-pointer items-center gap-3 rounded-md border border-border bg-card px-4 py-3 text-sm transition-colors has-[:checked]:border-primary has-[:checked]:bg-blush/50"
         >
-          <input type="radio" name={name} value={o} defaultChecked={o === defaultValue} required className="accent-primary" />
+          <input
+            type="radio"
+            name={name}
+            value={o}
+            defaultChecked={o === defaultValue}
+            required
+            className="accent-primary"
+          />
           {o}
         </label>
       ))}

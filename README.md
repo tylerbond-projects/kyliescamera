@@ -1,4 +1,4 @@
-# Kylie Photography
+# Kylie's Camera
 
 The website for **Kylie Photography**, a portrait and event photographer in Utah County, UT.
 

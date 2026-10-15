@@ -1,15 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { PageIntro } from "@/components/site/PageIntro";
-import { SHOOT_TYPES, type ShootSlug } from "@/lib/site";
+import { SHOOT_TYPES, MISC_PRICING } from "@/lib/site";
 import { CATEGORY_IMAGES } from "@/lib/images";
+import { listGalleryPhotos } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/gallery")({
+  loader: async () => {
+    const dbPhotos = await listGalleryPhotos().catch(() => []);
+    return { dbPhotos };
+  },
   head: () => ({
     meta: [
-      { title: "Gallery — Kylie Photography" },
-      { name: "description", content: "A look at recent portrait, couple, family, wedding, dance, sports, and homecoming sessions around Utah County." },
-      { property: "og:title", content: "Gallery — Kylie Photography" },
+      { title: "Gallery — Kylie's Camera" },
+      {
+        name: "description",
+        content:
+          "A look at recent portrait, couple, family, and wedding sessions around Utah County.",
+      },
+      { property: "og:title", content: "Gallery — Kylie's Camera" },
       { property: "og:description", content: "Recent sessions around Utah County." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -18,42 +27,70 @@ export const Route = createFileRoute("/gallery")({
   component: GalleryPage,
 });
 
-// Placeholder gallery: each category repeats its sample image a few times.
-const ITEMS = SHOOT_TYPES.flatMap((t) =>
-  [0, 1, 2].map((n) => ({ id: `${t.slug}-${n}`, slug: t.slug as ShootSlug, name: t.name, src: CATEGORY_IMAGES[t.slug] })),
-);
+const CATEGORIES = [
+  ...SHOOT_TYPES.map((t) => ({
+    slug: t.slug as string,
+    name: t.name,
+    placeholder: CATEGORY_IMAGES[t.slug],
+  })),
+  ...MISC_PRICING.items.map((i) => ({ slug: i.slug, name: i.name, placeholder: undefined })),
+];
 
 function GalleryPage() {
-  const [active, setActive] = useState<ShootSlug | "all">("all");
-  const items = active === "all" ? ITEMS : ITEMS.filter((i) => i.slug === active);
+  const { dbPhotos } = Route.useLoaderData();
+  const [active, setActive] = useState<string>("all");
+
+  const items = useMemo(() => {
+    return CATEGORIES.flatMap((cat) => {
+      const real = dbPhotos.filter((p) => p.category === cat.slug);
+      if (real.length > 0) {
+        return real.map((p) => ({ id: String(p.id), slug: cat.slug, name: cat.name, src: p.url }));
+      }
+      if (!cat.placeholder) return [];
+      return [0, 1, 2].map((n) => ({
+        id: `${cat.slug}-${n}`,
+        slug: cat.slug,
+        name: cat.name,
+        src: cat.placeholder as string,
+      }));
+    });
+  }, [dbPhotos]);
+
+  const filtered = active === "all" ? items : items.filter((i) => i.slug === active);
+  const hasAnyRealPhotos = dbPhotos.length > 0;
 
   return (
     <>
       <PageIntro eyebrow="Portfolio" title="The Gallery" script="a few favorites">
-        Browse by session type. These are placeholder samples for now — real sessions coming soon.
+        {hasAnyRealPhotos
+          ? "Browse by session type."
+          : "Browse by session type. These are placeholder samples for now — real sessions coming soon."}
       </PageIntro>
 
       <div className="container-site">
         <div className="mb-10 flex flex-wrap justify-center gap-2">
-          {[{ slug: "all" as const, name: "All" }, ...SHOOT_TYPES].map((t) => (
+          {[{ slug: "all", name: "All" }, ...CATEGORIES].map((c) => (
             <button
-              key={t.slug}
+              key={c.slug}
               type="button"
-              onClick={() => setActive(t.slug)}
+              onClick={() => setActive(c.slug)}
               className={`rounded-full border px-4 py-2 text-xs uppercase tracking-[0.18em] transition-colors ${
-                active === t.slug
+                active === c.slug
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-card text-muted-foreground hover:text-foreground"
               }`}
             >
-              {t.slug === "missionary" ? "Homecoming & Misc" : t.name.replace(" Session", "")}
+              {c.name}
             </button>
           ))}
         </div>
 
         <div className="columns-2 gap-4 md:columns-3 [&>*]:mb-4">
-          {items.map((item, i) => (
-            <figure key={item.id} className="group relative break-inside-avoid overflow-hidden rounded-md">
+          {filtered.map((item, i) => (
+            <figure
+              key={item.id}
+              className="group relative break-inside-avoid overflow-hidden rounded-md"
+            >
               <img
                 src={item.src}
                 alt={item.name}
